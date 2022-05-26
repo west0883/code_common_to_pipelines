@@ -23,7 +23,9 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
     mice_all = parameters.mice_all; 
     digitNumber = parameters.digitNumber;
    
-    
+    % Tell user where data is being saved
+    disp(['Data saved in '  parameters.dir_out_base{1}]); 
+
     % For each mouse 
     for mousei=1:size(mice_all,2)
         mouse=mice_all(mousei).name;
@@ -38,10 +40,10 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
             disp(['mouse ' mouse ', day ' day]);
             
             % Create data input directory and cleaner output directory. 
-            dir_in_segment = [dir_in_segment_base mouse '\' day '\'];
-            dir_in_data = [dir_in_data_base mouse '\' day '\'];
+            dir_in_segment = CreateFileStrings(parameters.dir_in_segment_base, mouse, day, [], [], false);
+            dir_in_data = CreateFileStrings(parameters.dir_in_data_base, mouse, day, [], [], false);
             parameters.dir_in = dir_in_data;
-            dir_out=[dir_out_base mouse '\' day '\']; 
+            dir_out= CreateFileStrings([parameters.dir_out_base], mouse, day, [], [], false);
           
             % Get the velocities stack list
             [stackList]=GetStackList(mousei, dayi, parameters);
@@ -78,6 +80,7 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
                     % Make an empty matrix. 
                     segmented_data = []; 
                     
+                    try 
                     % Get relevant segment variable name
                     variable_name = CreateFileStrings(input_segment_variable,[], [], [], period, false);
                     
@@ -138,6 +141,9 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
                     
                     % Convert segmented data to the desired variable name
                     eval([output_variable_name ' = segmented_data;']);
+                    catch 
+                        continue 
+                    end
                 end 
                 
                 % Get the right names for saving per stack. 
