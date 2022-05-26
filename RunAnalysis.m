@@ -217,9 +217,8 @@ function [] = RunAnalysis(functions, parameters)
         parameters.maxIterations = [];
         parameters.maxIterations.numbers_only = [];
         for i = 1:size(parameters.loop_list.iterators,1)
-            parameters.max_iterations.(parameters.loop_list.iterators{i,3}) = maxIterations(itemi, i);
-
-            parameters.maxIterations = setfield(parameters.maxIterations, parameters.loop_list.iterators{i,3}, maxIterations(itemi, i));
+            
+            parameters.maxIterations.(parameters.loop_list.iterators{i,3}) = maxIterations(itemi, i);
             parameters.maxIterations.numbers_only = [parameters.maxIterations.numbers_only maxIterations(itemi, i)];
         end
 
@@ -280,7 +279,6 @@ function [] = RunAnalysis(functions, parameters)
         % For each potential thing to save
         for savei = 1:numel(save_fields)
             
-            
             % Assign to variable strings now (so you can iterate between
             % saves). 
 
@@ -294,15 +292,15 @@ function [] = RunAnalysis(functions, parameters)
 
 
             % Find out if you save at this level.
-            save_flag = getfield(looping_output_list, {itemi}, [save_fields{savei} '_save']);
-            
+            save_flag = looping_output_list(itemi).([save_fields{savei} '_save']);
+           
             % If you save at this level, or if the called function sends
             % out the "save_now flag", 
             if ~parameters.dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
 
                 % Create strings for all saving info
-                dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
-                filename_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'filename');
+                dir_cell = parameters.loop_list.things_to_save.(save_fields{savei}).dir;
+                filename_cell = parameters.loop_list.things_to_save.(save_fields{savei}).filename;
                
                 output_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
@@ -328,13 +326,13 @@ function [] = RunAnalysis(functions, parameters)
                     % .fig type)
 
                     % Get out the loop_list info 
-                    fig_list_variable = getfield(parameters.loop_list.things_to_save, save_fields{savei});
+                    fig_list_variable = parameters.loop_list.things_to_save.(save_fields{savei});
                     
                     % Check if user put in a saveas type. 
                     if isfield(fig_list_variable, 'saveas_type')
 
                         % Get the save type
-                        fig_type = getfield(fig_list_variable, 'saveas_type');
+                        fig_type = fig_list_variable.saveas_type;
                         
                         % Save the fancy figure, too. 
                         saveas(variable_out, filename, fig_type);
@@ -348,8 +346,8 @@ function [] = RunAnalysis(functions, parameters)
                     
                     % Get the relevant sub-structure (have to do it like
                     % this because isfield doesn't nest)
-                    loop_list_variable = getfield(parameters.loop_list.things_to_save, save_fields{savei});
-                       
+                    loop_list_variable = parameters.loop_list.things_to_save.(save_fields{savei});
+                  
                     if isstruct(variable_out) && isfield(loop_list_variable, 'save_as_variables') && loop_list_variable.save_as_variable
 
                             % Save with structure-to-variables feature
@@ -388,7 +386,7 @@ function [] = RunAnalysis(functions, parameters)
                         % Save
                         save([output_dir filename], variable_string, '-v7.3'); 
 
-
+                    % Or if the variable name shows it's a structure
                     elseif contains(variable_string, '.')
                             
                             % Find location of the period & only use the string
@@ -435,10 +433,10 @@ function [] = RunAnalysis(functions, parameters)
             end
 
             % Get the current value of that iterator 
-            current_iterator_to_skip = getfield(looping_output_list(itemi), parameters.loop_list.iterators{next_iterator_level, 3});
+            current_iterator_to_skip = looping_output_list(itemi).(parameters.loop_list.iterators{next_iterator_level, 3});
 
             % In looping list, find when that iterator increases by 1
-            eval(['holder = [looping_output_list(:).' parameters.loop_list.iterators{next_iterator_level, 3} '];']); 
+            holder = looping_output_list(:).(parameters.loop_list.iterators{next_iterator_level, 3}); 
             next_iteration = find(holder == current_iterator_to_skip +1,1); 
             
             % If "next_iteration" isn't empty
