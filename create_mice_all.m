@@ -16,6 +16,9 @@ experiment_name='Random Motorized Treadmill';
 dir_base='Y:\Sarah\Analysis\Experiments\';
 dir_exper=[dir_base experiment_name '\']; 
 
+% Give the number of digits that should be included in each stack number.
+parameters.digitNumber=2; 
+
 dir_out=dir_exper; 
 mkdir(dir_out);
 
@@ -23,132 +26,135 @@ mkdir(dir_out);
 
 % If no stacks in a field, put NaN (don't leave empty, code will default to
 % 'all').
-mice_all(1).name='1087'; 
-mice_all(1).days(1).name='112121';
-mice_all(1).days(1).stacks='all'; 
-mice_all(1).days(2).name='112421';
-mice_all(1).days(2).stacks='all'; 
-mice_all(1).days(3).name='112621';
-mice_all(1).days(3).stacks=2:10; 
-mice_all(1).days(4).name='112721';
-mice_all(1).days(4).stacks='all'; 
-mice_all(1).days(5).name='112821';
-mice_all(1).days(5).stacks= [1, 3:10]; 
-mice_all(1).days(6).name='120221';
-mice_all(1).days(6).stacks= 4:11;
-mice_all(1).days(6).spontaneous = 13:18;
-mice_all(1).days(7).name='120721';
-mice_all(1).days(7).stacks=1:10; 
-mice_all(1).days(7).spontaneous= 11:15;
-mice_all(1).days(8).name='121321';
-mice_all(1).days(8).stacks=[1:6, 8:11]; 
-mice_all(1).days(9).name='121721';
-mice_all(1).days(9).stacks= [NaN];
-mice_all(1).days(9).spontaneous= 12:16;
-mice_all(1).days(10).name='010422';
-mice_all(1).days(10).stacks= [2:3, 5:11];
-mice_all(1).days(10).spontaneous= [12:16];
-mice_all(1).days(11).name='010622';
-mice_all(1).days(11).stacks= [NaN];
-mice_all(1).days(11).spontaneous= [11:15]; % Don't use frames before ~3000 in stack 11
-mice_all(1).days(12).name='011122'; 
-mice_all(1).days(12).stacks= 1:10;
-mice_all(1).days(12).spontaneous= [11, 14:17];
-
-
-mice_all(2).name='1088';
-mice_all(2).days(1).name='112121';
-mice_all(2).days(1).stacks='all'; 
-mice_all(2).days(2).name='112421';
-mice_all(2).days(2).stacks='all'; 
-mice_all(2).days(3).name='112621';
-mice_all(2).days(3).stacks='all';
-mice_all(2).days(4).name='112721';
-mice_all(2).days(4).stacks='all'; 
-mice_all(2).days(5).name='112821';
-mice_all(2).days(5).stacks='all';      
-mice_all(2).days(6).name='120321';
-mice_all(2).days(6).stacks=2:11;
-mice_all(2).days(6).spontaneous =[12:16];
-mice_all(2).days(7).name='120721';
-mice_all(2).days(7).stacks=3:12;
-mice_all(2).days(7).spontaneous =[NaN];
-mice_all(2).days(8).name='121621';
-mice_all(2).days(8).stacks=6:15;
-mice_all(2).days(8).spontaneous =[17:21];
-mice_all(2).days(9).name='010522';
-mice_all(2).days(9).stacks=[3:10 12];
-mice_all(2).days(9).spontaneous =[13:14, 17];
-mice_all(2).days(10).name='010622';
-mice_all(2).days(10).stacks=6:15;
-mice_all(2).days(10).spontaneous =[1:5];
-
-mice_all(3).name='1096';
-mice_all(3).days(1).name='112121';
-mice_all(3).days(1).stacks=[1:4, 6:9];
-mice_all(3).days(2).name='112721';
-mice_all(3).days(2).stacks=[1:7, 9:10];
-mice_all(3).days(3).name='112821';
-mice_all(3).days(3).stacks=1:10;
-mice_all(3).days(4).name='120221';
-mice_all(3).days(4).stacks=1:10;
-mice_all(3).days(4).spontaneous =[11:14];
-mice_all(3).days(5).name='120321';
-mice_all(3).days(5).stacks=1:10;
-mice_all(3).days(5).spontaneous =[NaN];
-mice_all(3).days(6).name='120621';
-mice_all(3).days(6).stacks=1:10;
-mice_all(3).days(6).spontaneous =[NaN];
-mice_all(3).days(7).name='121421';
-mice_all(3).days(7).stacks=6:14;
-mice_all(3).days(7).spontaneous =[1:5];
-mice_all(3).days(8).name='121721';
-mice_all(3).days(8).stacks=[NaN];
-mice_all(3).days(8).spontaneous =[1:5];
-mice_all(3).days(9).name='010522';
-mice_all(3).days(9).stacks=[7:10 12:14 17];
-mice_all(3).days(9).spontaneous =[1:5];
-mice_all(3).days(10).name='011122';
-mice_all(3).days(10).stacks=6:15;
-mice_all(3).days(10).spontaneous =[1:5];
-
-save([dir_out 'mice_all.mat'], 'mice_all');
+% mice_all(1).name='1087'; 
+% mice_all(1).days(1).name='112121';
+% mice_all(1).days(1).stacks='all'; 
+% mice_all(1).days(2).name='112421';
+% mice_all(1).days(2).stacks='all'; 
+% mice_all(1).days(3).name='112621';
+% mice_all(1).days(3).stacks=2:10; 
+% mice_all(1).days(4).name='112721';
+% mice_all(1).days(4).stacks='all'; 
+% mice_all(1).days(5).name='112821';
+% mice_all(1).days(5).stacks= [1, 3:10]; 
+% mice_all(1).days(6).name='120221';
+% mice_all(1).days(6).stacks= 4:11;
+% mice_all(1).days(6).spontaneous = 13:18;
+% mice_all(1).days(7).name='120721';
+% mice_all(1).days(7).stacks=1:10; 
+% mice_all(1).days(7).spontaneous= 11:15;
+% mice_all(1).days(8).name='121321';
+% mice_all(1).days(8).stacks=[1:6, 8:11]; 
+% mice_all(1).days(9).name='121721';
+% mice_all(1).days(9).stacks= [NaN];
+% mice_all(1).days(9).spontaneous= 12:16;
+% mice_all(1).days(10).name='010422';
+% mice_all(1).days(10).stacks= [2:3, 5:11];
+% mice_all(1).days(10).spontaneous= [12:16];
+% mice_all(1).days(11).name='010622';
+% mice_all(1).days(11).stacks= [NaN];
+% mice_all(1).days(11).spontaneous= [11:15]; % Don't use frames before ~3000 in stack 11
+% mice_all(1).days(12).name='011122'; 
+% mice_all(1).days(12).stacks= 1:10;
+% mice_all(1).days(12).spontaneous= [11, 14:17];
+% 
+% 
+% mice_all(2).name='1088';
+% mice_all(2).days(1).name='112121';
+% mice_all(2).days(1).stacks='all'; 
+% mice_all(2).days(2).name='112421';
+% mice_all(2).days(2).stacks='all'; 
+% mice_all(2).days(3).name='112621';
+% mice_all(2).days(3).stacks='all';
+% mice_all(2).days(4).name='112721';
+% mice_all(2).days(4).stacks='all'; 
+% mice_all(2).days(5).name='112821';
+% mice_all(2).days(5).stacks='all';      
+% mice_all(2).days(6).name='120321';
+% mice_all(2).days(6).stacks=2:11;
+% mice_all(2).days(6).spontaneous =[12:16];
+% mice_all(2).days(7).name='120721';
+% mice_all(2).days(7).stacks=3:12;
+% mice_all(2).days(7).spontaneous =[NaN];
+% mice_all(2).days(8).name='121621';
+% mice_all(2).days(8).stacks=6:15;
+% mice_all(2).days(8).spontaneous =[17:21];
+% mice_all(2).days(9).name='010522';
+% mice_all(2).days(9).stacks=[3:10 12];
+% mice_all(2).days(9).spontaneous =[13:14, 17];
+% mice_all(2).days(10).name='010622';
+% mice_all(2).days(10).stacks=6:15;
+% mice_all(2).days(10).spontaneous =[1:5];
+% 
+% mice_all(3).name='1096';
+% mice_all(3).days(1).name='112121';
+% mice_all(3).days(1).stacks=[1:4, 6:9];
+% mice_all(3).days(2).name='112721';
+% mice_all(3).days(2).stacks=[1:7, 9:10];
+% mice_all(3).days(3).name='112821';
+% mice_all(3).days(3).stacks=1:10;
+% mice_all(3).days(4).name='120221';
+% mice_all(3).days(4).stacks=1:10;
+% mice_all(3).days(4).spontaneous =[11:14];
+% mice_all(3).days(5).name='120321';
+% mice_all(3).days(5).stacks=1:10;
+% mice_all(3).days(5).spontaneous =[NaN];
+% mice_all(3).days(6).name='120621';
+% mice_all(3).days(6).stacks=1:10;
+% mice_all(3).days(6).spontaneous =[NaN];
+% mice_all(3).days(7).name='121421';
+% mice_all(3).days(7).stacks=6:14;
+% mice_all(3).days(7).spontaneous =[1:5];
+% mice_all(3).days(8).name='121721';
+% mice_all(3).days(8).stacks=[NaN];
+% mice_all(3).days(8).spontaneous =[1:5];
+% mice_all(3).days(9).name='010522';
+% mice_all(3).days(9).stacks=[7:10 12:14 17];
+% mice_all(3).days(9).spontaneous =[1:5];
+% mice_all(3).days(10).name='011122';
+% mice_all(3).days(10).stacks=6:15;
+% mice_all(3).days(10).spontaneous =[1:5];
+% 
+% save([dir_out 'mice_all.mat'], 'mice_all');
             
 
 %% OR create by importing a pre-written spreadsheet (with assumed formatting)
+% [Make this so user can give lists of fields for the table--> with a Map/dictionary?]
 
 % Spreadsheet directory
 dir_spreadsheet = 'Y:\Sarah\Data\Random Motorized Treadmill\';
 filename_spreadsheet = 'Recordings list.xlsx';
 
+% Clear existing mice_all, if needed
+clear mice_all
+
 % Import spreadsheet as cell array
 % (Auto-generated by MATLAB on 17-Feb-2022 12:28:46)
 
     % Set up the Import Options and import the data
-    opts = spreadsheetImportOptions("NumVariables", 15);
+    opts = spreadsheetImportOptions("NumVariables", 16);
     
     % Specify sheet and range
-    opts.Sheet = "Sheet1";
-    opts.DataRange = "A7:O81";
+    opts.Sheet = "Days collected";
+    opts.DataRange = "A8:P95";
     
     % Specify column names and types
-    opts.VariableNames = ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"];
-    opts.VariableTypes = ["char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char"];
+    opts.VariableNames = ["Mouse", "DayNumber", "Day", "Notes", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"];
+    opts.VariableTypes = ["char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char"];
     
     % Specify variable properties
-    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "WhitespaceRule", "preserve");
-    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "EmptyFieldRule", "auto");
+    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "Notes", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "WhitespaceRule", "preserve");
+    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "Notes", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "EmptyFieldRule", "auto");
     
     % Import the data
     Recordingslist = readtable([dir_spreadsheet filename_spreadsheet], opts, "UseExcel", false);
 
     % Clear temporary variables
     clear opts
-    
-    % Clear existing mice_all, if needed
-    clear mice_all
 
 %% From the imported spreadsheet, convert to mice_all 
+% [Make this so user can give flexible field names, matching what they
+% entered above--> with a Map/dictionary?]
 
 % Find the locations of the start of each mouse entry in the spreadsheet
 mouse_indices = [];
