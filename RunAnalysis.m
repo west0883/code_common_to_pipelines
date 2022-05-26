@@ -29,8 +29,8 @@ function [] = RunAnalysis(functions, parameters)
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
         % Keywords should be the names of each iterator, which are in the
-        % first column of iterators cell. 
-        parameters.keywords = parameters.loop_list.iterators(:,1);
+        % first column of iterators cell. Also include the iterator names.
+        parameters.keywords = [parameters.loop_list.iterators(:,1); parameters.loop_list.iterators(:,3)];
 
         % Values are the corresponding values in the looping output list
         % for each keyword's field.
