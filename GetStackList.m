@@ -9,20 +9,7 @@
 % day- a character array; is the name/date of the day
 % parameters - is all the other parameters you're using in your pipeline,
 % including the input file name format and directory and the number of digits used in the stack number name. 
-function [stackList]=GetStackList(mousei, dayi, parameters)
-    
-    % Get original parameter names.
-    digitNumber = parameters.digitNumber;
-    mice_all = parameters.mice_all; 
-    input_data_name = parameters.input_data_name;
-    dir_dataset_name = parameters.dir_dataset_name;
-    
-    % Get mouse and day name.
-    mouse= mice_all(mousei).name;
-    day = mice_all(mousei).days(dayi).name; 
-    
-    % Create data input directory and cleaner output directory. 
-    dir_in=CreateFileStrings(dir_dataset_name, mouse, day, [], false);
+function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_name, digitNumber)
     
     % Find if there's a stack list entry for that day. If not, set
     % to 'all' as a default. 
@@ -43,7 +30,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
        if strcmp(useStacks, 'all')
 
            % Create a file name string for searching. 
-           searching_name=CreateFileStrings(input_data_name, [], [], [], true); 
+           searching_name=CreateFileStrings(input_data_name, [], [], [], [], true); 
 
            % If it is the character string 'all', list stacks from
            % the day directory. 
@@ -103,7 +90,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
             stack_number = stackList.numberList(i, :); 
             
             % Get the whole file name. 
-            stackname=CreateFileStrings(input_data_name, [], [], stack_number, false); 
+            stackname=CreateFileStrings(input_data_name, [], [], stack_number, [], false); 
             
             % Add the file name to the list of stack file names.
             stackList.filenames = [stackList.filenames; stackname]; 
