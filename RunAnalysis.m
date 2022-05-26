@@ -20,6 +20,17 @@ function [] = RunAnalysis(functions, parameters)
 
     % *** Generate list of information to loop through. ***
     
+    % Because this is running analysis, a load and save field is required.
+    % Give errors if those are not present.
+    % load level field
+    if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
+       error('A non-empty field in loop list called "things_to_load" is required.');
+    end 
+    % save level field
+    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
+       error('A non-empty field in loop list called "things_to_save" is required.');
+    end 
+
     % Grab the number of digits user wants to use for iterating numbers in
     % filenames in LoopGenerator (like with stacks). Otherwise, default to 3 digist.
     if isfield(parameters, 'digitNumber')
@@ -28,6 +39,7 @@ function [] = RunAnalysis(functions, parameters)
         parameters.loop_list.digitNumber = 3; 
     end
 
+     % Generate list of things to loop through.
     [looping_output_list, maxIterations] = LoopGenerator(parameters.loop_list, parameters.loop_variables);
 
     % Initialize iterator for looping through looping_output_list
@@ -40,8 +52,6 @@ function [] = RunAnalysis(functions, parameters)
         % Make a default abort flag, which allows continuing to next item
         abort = false; 
 
-        % *** Loading ***
-        
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
         % Keywords should be the names of each iterator, which are in the
@@ -55,6 +65,7 @@ function [] = RunAnalysis(functions, parameters)
             parameters.values{i} = getfield(looping_output_list(itemi), cell2mat(parameters.keywords(i)));
         end
 
+        % *** Loading ***
         % Check each potential thing to load
         load_fields = fieldnames(parameters.loop_list.things_to_load);
         for loadi = 1:numel(load_fields)

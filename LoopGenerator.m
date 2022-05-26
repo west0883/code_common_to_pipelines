@@ -32,14 +32,6 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     if ~isfield(loop_list, 'iterators') || isempty(loop_list.iterators)
        error('A non-empty field in loop list called "iterators" is required.');
     end 
-%     % load level field
-%     if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
-%        error('A non-empty field in loop list called "things_to_load" is required.');
-%     end 
-%     % save level field
-%     if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
-%        error('A non-empty field in loop list called "things_to_save" is required.');
-%    end 
     
     % Display to user what iterators are being used.
     display_string = ['Looping through'];
@@ -77,7 +69,7 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             
     end
    
-    % Potentially deal with "load" and "save" at the very end-->insert them
+    % Deal with "load" and "save" at the very end-->insert them
     % based on changes in the relevant iterator value in loop_list. (when
     % the iterator value changes)
 
@@ -138,6 +130,7 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     else
         save_fields = {}; 
     end
+
     % Change to structure for easier (non-ordered indexing) use.
 
     % Make empty structure to put things in.
