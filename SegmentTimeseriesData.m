@@ -27,7 +27,7 @@ function [parameters] = SegmentTimeseriesData(parameters)
 
         else 
             if ~isempty(parameters.time_ranges)
-                parameters.segmented_timeseries = SubSegmenter(parameters.time_ranges); 
+                parameters.segmented_timeseries = SubSegmenter(parameters.time_ranges, parameters.timeseries, parameters.segmentDim, parameters.concatDim); 
             else
                 parameters.segmented_timeseries = [];
             end
@@ -41,8 +41,7 @@ function [segmented_timeseries] = SubSegmenter(time_ranges, timeseries, segmentD
         
          % Make an empty matrix. 
         segmented_data = []; 
-        
-
+       
         % Take the ranges using a flexible number of dimensions
         % C is a holder of as many ':' indices as we need.
         C = repmat({':'},1, ndims(timeseries));
@@ -65,7 +64,12 @@ function [segmented_timeseries] = SubSegmenter(time_ranges, timeseries, segmentD
                  % Put into output 
                  segmented_timeseries = segmented_data; 
             catch 
+                if nargin > 3
                 disp(['Dimension error in ' num2str(celli)]);
+
+                else 
+                    disp(['Dimension error.']);
+                end
                 continue
             end
            
