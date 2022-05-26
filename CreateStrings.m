@@ -8,117 +8,40 @@
 % string with the correct mouse and day in them. 
 
 % Input: 
-% file_format_cell--cell array. Establish the format of the file names of compressed data. Each piece
+% string_format_cell--cell array. Establish the format of the file names of compressed data. Each piece
 % needs to be a separate entry in a cell array. 
+% keywords - a cell array of strings that you look for inside the
+% string_format_cell. 
+% variables - a cell array of variables (with string values) that you put in to replace the
+% corresponding keywords.
 
-% searching -- true/false Boolean. Inserts * into the place of each entry
-% instead of a changing number. If true, all other entries should be empty
-
-function [file_string]=CreateStrings(file_format_cell, tags, variables)
+function [new_string]=CreateStrings(string_format_cell, keywords, variables)
     
     % Make a new cell array to manipulate. 
-    file_format_output_cell=file_format_cell;
+    new_string=string_format_cell;
     
-    % See if there is an entry for mouse number, find where it's located
-    mouse_index=find(strcmp(file_format_cell,'mouse number'));
-    
-    % If not empty
-    if isempty(mouse_index)==0
-         
-         % If there is, make sure the mouse entry isn't empty 
-         if isempty(mouse)==0
-
-             % Put the mouse number in place of the mouse number tag
-             file_format_output_cell(mouse_index)={mouse}; 
-
-         % If the mouse input is empty, and you're searching
-         elseif searching
-            % We're creating a file string for searching directories, put a * in this place.
-            file_format_output_cell(mouse_index)={'*'}; 
-
-         % If mouse input is empty, but you're not searching throw an error
-         else 
-             error('no mouse number was given'); 
-         end
-         
-    end
-     
-    % See if there is an entry for day, find where it's located 
-     day_index=find(strcmp(file_format_cell,'day'));
-     
-     if isempty(day_index)==0
-          
-         % If there is, make sure the day entry isn't empty 
-         if isempty(day)==0
-
-             % Put the day number in place of the day number tag
-             file_format_output_cell(day_index)={day}; 
-         
-         % If it's empty, but we're searching 
-         elseif searching
-             
-            % We're creating a file string for searching directories, put a * in this place.
-            file_format_output_cell(day_index)={'*'}; 
-         
-         % If it's empty & we're not creating this for searching, throw an
-         % error
-         else 
-            error('no day was given'); 
-             
-         end
-     end 
-     
-     % See if there is an entry for stack number, find where it is 
-     stack_index=find(strcmp(file_format_cell,'stack number'));
-     
-     if isempty(stack_index)==0
-         
-         % If we're creating a file string for searching directories, put a * in this place.
-         file_format_output_cell(stack_index)={'*'};  
-
-         % If there is, make sure the stack number entry isn't empty 
-         if isempty(stack_number)==0
-
-             % Put the mouse number in place of the mouse number tag
-             file_format_output_cell(stack_index)={stack_number}; 
-
-         % If the stack input is empty and we're searching
-         elseif searching
-
-            % We're creating a file string for searching directories, put a * in this place.
-            file_format_output_cell(stack_index)={'*'}; 
-
-         % If the stack is empty, but we're not searching
-         else
-             error('no stack number was given'); 
-         end 
+    % For each keyword,
+    for keywordi = 1:numel(keywords)
         
-     end 
-     
-     % See if there is an entry for period, find where it is 
-     period_index=find(strcmp(file_format_cell,'period name'));
-     
-     if isempty(period_index)==0
+        keyword = keywords{keywordi};
     
-         % If there is, make sure the stack number entry isn't empty 
-         if isempty(period)==0
+        % See if there is an entry for mouse number, find where it's located
+        keyword_index=find(strcmp(string_format_cell, keyword));
+        
+        % If there is a position, but there's no corresponding keyword
+        if ~isempty(keyword_index) & isempty(variables{keywordi})
 
-             % Put the mouse number in place of the mouse number tag
-             file_format_output_cell(period_index)={period}; 
+            error(['No variable giving for ''' keyword ''.']);
 
-         % If the period input is empty and we're searching, 
-         elseif searching
-            
-             % We're creating a file string for searching directories, put a * in this place.
-             file_format_output_cell(period_index)={'*'}; 
-         
-         % If period input is empty, but we're not searching, throw an
-         % error
-         else 
-             error('no period name was given'); 
-         end 
-     end 
+        elseif ~isempty(keyword_index)
+            % Put the variable in place of the keyword
+            for subi = 1:numel(keyword_index)
+                new_string(keyword_index) = {variables{keywordi}};
+            end
+        end
+    end 
     
     % Now concatenate everything into a single string.
-    file_string=horzcat(file_format_output_cell{:}); 
+    new_string=horzcat(new_string{:}); 
+
 end 
