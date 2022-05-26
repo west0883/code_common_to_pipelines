@@ -129,27 +129,94 @@ filename_spreadsheet = 'Recordings list.xlsx';
     
     % Specify sheet and range
     opts.Sheet = "Sheet1";
-    opts.DataRange = "A5:O91";
+    opts.DataRange = "A7:O81";
     
     % Specify column names and types
-    opts.VariableNames = ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotorfirstUsed121421", "MislabeledPuttyTrialNumbers", "EyeCamBadStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"];
+    opts.VariableNames = ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"];
     opts.VariableTypes = ["char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char", "char"];
     
     % Specify variable properties
-    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotorfirstUsed121421", "MislabeledPuttyTrialNumbers", "EyeCamBadStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "WhitespaceRule", "preserve");
-    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotorfirstUsed121421", "MislabeledPuttyTrialNumbers", "EyeCamBadStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "EmptyFieldRule", "auto");
+    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "WhitespaceRule", "preserve");
+    opts = setvaropts(opts, ["Mouse", "DayNumber", "Day", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"], "EmptyFieldRule", "auto");
     
     % Import the data
     Recordingslist = readtable([dir_spreadsheet filename_spreadsheet], opts, "UseExcel", false);
-    
-    % Convert to output type
-    Recordingslist = table2cell(Recordingslist);
-    numIdx = cellfun(@(x) ~isnan(str2double(x)), Recordingslist);
-    Recordingslist(numIdx) = cellfun(@(x) {str2double(x)}, Recordingslist(numIdx));
-    
+
     % Clear temporary variables
     clear opts
-
+    
+    % Clear existing mice_all, if needed
+    clear mice_all
 
 %% From the imported spreadsheet, convert to mice_all 
 
+% Find the locations of the start of each mouse entry in the spreadsheet
+mouse_indices = [];
+for celli = 1:size(Recordingslist,1)
+
+    % If the cell in this column isn't empty, then it's the first entry for
+    % a mouse
+    if ~isempty(Recordingslist.Mouse{celli})
+        mouse_indices = [mouse_indices; celli];
+    end
+end
+
+% For each of these mice, 
+for mousei = 1:numel(mouse_indices)
+
+    % Get the name of the mouse and put it into the structure
+    mouse = Recordingslist.Mouse{mouse_indices(mousei)}; 
+    mice_all(mousei).name = mouse;
+
+    % Get the range of day entries for this moust (is all the entries until
+    % two before the next mouse, mice are separated by a blank row)
+    % If not the last mouse
+    if mousei ~= numel(mouse_indices)
+        day_indices = [mouse_indices(mousei):mouse_indices(mousei+1)-2];
+    else 
+        % If the last mouse, do just to end of imported data.
+        day_indices = [mouse_indices(mousei):size(Recordingslist,1)];
+    end
+
+    % For each of these days, 
+    for dayi = 1:numel(day_indices)
+
+        % Get the name of the day and put it into the structure.
+        day = Recordingslist.Day{day_indices(dayi)}; 
+        mice_all(mousei).days(dayi).name = day; 
+
+        % Get the stacks and put it into the structure. Make NaN if
+        % empty, because some code defaults to filling in empty.
+        stacks = str2num(Recordingslist.MotorizedStackNumbers{day_indices(dayi)});
+        if ~isempty(stacks)
+            mice_all(mousei).days(dayi).stacks = stacks;
+        else 
+            mice_all(mousei).days(dayi).stacks = NaN;
+        end
+
+        % Get the spontaneous and put it into the structure. Make NaN if
+        % empty, because some code defaults to filling in empty.
+        stacks = str2num(Recordingslist.SpontaneousStackNumbers{day_indices(dayi)});
+        if ~isempty(stacks)
+            mice_all(mousei).days(dayi).spontaneous = stacks;
+        else 
+            mice_all(mousei).days(dayi).spontaneous = NaN;
+        end
+
+        % Get other parameters
+        mice_all(mousei).days(dayi).number_speeds_used = str2num(Recordingslist.SpeedsUsed{day_indices(dayi)}); 
+        mice_all(mousei).days(dayi).number_accels_used = str2num(Recordingslist.AccelsUsed{day_indices(dayi)}); 
+        mice_all(mousei).days(dayi).average_number_transitions_perstack = str2num(Recordingslist.AvgNumberTransitionsPerStack{day_indices(dayi)}); 
+        mice_all(mousei).days(dayi).probe_frequency = str2num(Recordingslist.ProbeFrequency{day_indices(dayi)});
+        mice_all(mousei).days(dayi).putty_for_motor = Recordingslist.PuttyUsedForMotor{day_indices(dayi)};
+        mice_all(mousei).days(dayi).bad_behavior_video_stacks = Recordingslist.BadBehaviorCamStackNumbers{day_indices(dayi)};
+        mice_all(mousei).days(dayi).mislabeled_putty_trials_motor = Recordingslist.MislabeledPuttyTrialNumbers{day_indices(dayi)};
+        mice_all(mousei).days(dayi).mislabeled_putty_trials_spontaneous = Recordingslist.MislabeledPuttyTrialNumbers_1{day_indices(dayi)};
+    end
+
+    % Clear day_indices, for good measure
+    clear day_indices
+end
+
+% Save mice_all
+save([dir_out 'mice_all.mat'], 'mice_all');
