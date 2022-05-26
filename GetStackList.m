@@ -35,7 +35,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
      % If user wants to use spontaneous stacks in addition to "stacks",
      % combine them (but not if there's an nan in the spontaneous place).
     if isfield(parameters, 'use_spontaneous_also') && parameters.use_spontaneous_also
-        if isfield(parameters.mice_all(mousei).days(dayi), 'spontaneous') && ~isnan(parameters.mice_all(mousei).days(dayi).spontaneous)
+        if isfield(parameters.mice_all(mousei).days(dayi), 'spontaneous') && ~any(isnan(parameters.mice_all(mousei).days(dayi).spontaneous))
             parameters.mice_all(mousei).days(dayi).stacks = [parameters.mice_all(mousei).days(dayi).stacks  parameters.mice_all(mousei).days(dayi).spontaneous];
         end
     end
@@ -48,8 +48,9 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
        parameters.mice_all(mousei).days(dayi).stacks='all'; 
        
     % If stacks left as NaN, make it empty so the code skips over it.   
-    elseif isnan(parameters.mice_all(mousei).days(dayi).stacks) == 1
-       parameters.mice_all(mousei).days(dayi).stacks=[]; 
+    else
+       ind = find(isnan(parameters.mice_all(mousei).days(dayi).stacks));
+       parameters.mice_all(mousei).days(dayi).stacks(ind)=[]; 
     end
     
     % Create a combined input name.
