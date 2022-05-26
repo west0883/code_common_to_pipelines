@@ -49,8 +49,12 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
     imagesc(image_to_mask); colormap(axis_for_drawing, mymap);
     xticks([]); yticks([]); axis square; 
     
+    % Set input dialogue options -- allow for user to still interact with
+    % figures.
+    opts.WindowStyle = 'normal';
+
     % Ask user if they want to add a mask
-    user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no']); 
+    user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no'], 'User input', 1,{''}, opts); 
 
     %Convert the user's answer into a value
     answer1=user_answer1{1};
@@ -92,7 +96,7 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
         xticks([]); yticks([]); axis square;
 
         % Repeat
-        user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no']); 
+        user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no'], 'User input', 1,{''}, opts); 
         answer1=user_answer1{1};
     end
 
