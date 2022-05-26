@@ -65,6 +65,9 @@ function [] = RunAnalysis(functions, parameters)
         % Make a default don't save flag
         parameters.dont_save = false;
 
+        % Make a defaule save now value.
+        parameters.save_now = false;
+
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
         % Keywords should be the names of each iterator, which are in the
