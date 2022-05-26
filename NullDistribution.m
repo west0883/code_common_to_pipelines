@@ -9,7 +9,7 @@
 function [parameters] = NullDistribution(parameters)
 
     % Tell user what's happening.
-    MessageToUser('Suffling ', parameters);
+    MessageToUser('Shuffling ', parameters);
 
     % Set up matrix to hold shuffled data, depending on size
     % of the data being compared and the dimensions being shuffled.
