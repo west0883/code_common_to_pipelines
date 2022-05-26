@@ -215,6 +215,10 @@ function [] = RunAnalysis(functions, parameters)
                         save([output_dir filename], variable_string, '-v7.3'); 
                     end 
                 end
+
+                % Once you've saved it, remove that variable from parameters 
+                % structure so called functions don't over write or add to it.
+                parameters = rmfield(parameters,save_fields{savei});
             end
         end
         
