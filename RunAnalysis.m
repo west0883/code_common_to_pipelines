@@ -52,9 +52,6 @@ function [] = RunAnalysis(functions, parameters)
     save_fields = fieldnames(parameters.loop_list.things_to_save);
     %variable_out = cell(numel(save_fields),1);
 
-    % Holder for marking if there is a file or not.
-    file_found = ones(numel(load_fields), 1);
-
     % For each item in the list of information to loop through, (Use a
     % while loop so you can have functions skip iterations if needed).
     while itemi <= size(looping_output_list, 1)
@@ -64,9 +61,6 @@ function [] = RunAnalysis(functions, parameters)
 
         % Make a default don't save flag
         parameters.dont_save = false;
-
-        % Make a defaule save now value.
-        parameters.save_now = false;
 
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
@@ -105,8 +99,6 @@ function [] = RunAnalysis(functions, parameters)
 
                 % Make sure file exists
                 if isfile([input_dir filename])
-                   
-                    file_found(loadi) = 1;
 
                     % If there is a load function for this field, use that
                     eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';']);
@@ -162,7 +154,6 @@ function [] = RunAnalysis(functions, parameters)
                     else
                         % If no file, report (sometimes we want this).
                         disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
-                        file_found(loadi) = 0;
                     end
                 end 
             end
@@ -189,16 +180,13 @@ function [] = RunAnalysis(functions, parameters)
         % load level. 
         for loadi = 1:numel(load_fields)
 
-            % If this load item didn't have a file loaded, continue to next load
-            % item.
-            if ~ file_found(loadi,1)
-               continue
-            end
-
             % Skip if there was a special load function because retrieved
             % value was already defiened. 
             eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
-            if ~isfield(this_load_item, 'load_function')
+
+            % If this doesn't need to be loaded in specially & the
+            % corresponding variable_in cell isn't empty,
+            if ~isfield(this_load_item, 'load_function') && ~isempty(variable_in{loadi})
                 
                 variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
                 variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
