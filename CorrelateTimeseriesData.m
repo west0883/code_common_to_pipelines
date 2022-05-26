@@ -122,6 +122,8 @@ function [corrs] = SubCorrelater(data)
                 % matrix.
                 corrs(i1, i2) = R(1,2);
             end
-           
         end 
+
+        % Now convert to only lower triangle. 
+        corrs = tril(corrs, -1);
 end 
