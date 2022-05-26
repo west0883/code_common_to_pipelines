@@ -37,8 +37,8 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
        error('A non-empty field in loop list called "things_to_load" is required.');
     end 
     % save level field
-    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_saves)
-       error('A non-empty field in loop list called "save_level" is required.');
+    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
+       error('A non-empty field in loop list called "things_to_save" is required.');
     end 
     
     % Display to user what iterators are being used.
@@ -77,7 +77,7 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     for i = 1:numel(load_fields)
         
         % Get the level of loading for that item. 
-        load_level = getfield(loop_list.things_to_load, load_fields{i}, 'load_level');
+        load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
 
         % Get the level of loading from loop_list
         load_level_index = find(strcmp(loop_list.iterators(:,1), load_level));
@@ -102,7 +102,7 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     for i = 1:numel(save_fields)
         
         % Get the level of saveing for that item. 
-        save_level = getfield(loop_list.things_to_save, save_fields{i}, 'save_level');
+        save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
 
         % Get the level of saveing from loop_list
         save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
@@ -187,7 +187,7 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         
         % If the list you want is a numeric array inside a cell array, get
         % it out and turn to a cell array.
-        if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1})
+        if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1}) && isnumeric(lower_values{1})
             lower_values = num2cell(lower_values{:}); 
         
         % Or remove the extra nesting step.
