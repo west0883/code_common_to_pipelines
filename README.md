@@ -1,6 +1,6 @@
 # code_common_to_pipelines
 
-This repository holds helper functions used by other MATLAB repositories by west0883. It is designed for use by the Ebner Lab at the University of Minnesota in wide-field calcium imaging in awake, behaving mice. hese techniques are used in a [peer-reviewed scientific article](https://doi.org/10.1093/cercor/bhab373). 
+This repository holds helper functions used by other MATLAB repositories by west0883. It is designed for use by the Ebner Lab at the University of Minnesota in wide-field calcium imaging in awake, behaving mice. These techniques are used in a [peer-reviewed scientific article](https://doi.org/10.1093/cercor/bhab373). 
 
 This code calls on code created by other programmers. Credit belongs to the original creators of each part of this code, and should be cited accordingly.
 
