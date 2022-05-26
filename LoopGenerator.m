@@ -79,10 +79,12 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         higher_values = looping_output_list(higheri, 1:2*(i-1));
       
         % Get the current values based on higher_values and where current
-        % value is stored
+        % value is stored. Make a list of keys-values for creating the
+        % right strings.
         string_searches = [loop_list(1:i-1, 3) ];
         number_searches = looping_output_list(higheri, [2:2:end]);
-
+        
+        % Create a string for "eval" evalutaion of lower value name.
         lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
         eval(['lower_values = {' lower_values_string '};']);
         
@@ -107,15 +109,21 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
             end
 
             % Concatenate to end of looping_output_list_2
+
+            % If the very first instance, overwrite the first empty entry.
             if i == 1 && higheri ==1 && loweri == 1
                 looping_output_list_2(1,:) = [{lower_value}, {loweri}];
-               
+            
+            % If the very first iteration level, don't need to include any higher
+            % level values.
             elseif i == 1 && higheri ==1
                 looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
-
+            
+            % Concatenate new information along with information about higher level values.    
             else
                 looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
             end
+
         end
     end
 end
