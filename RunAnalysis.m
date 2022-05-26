@@ -16,7 +16,7 @@
 % loop_list_1.things_to_load.data.load_level = 'stack';
 % loop_variables.mice_all = mice_all;
 
-function [] = RunAnalysis(functions, parameters)
+function [] = RunAnalysis(functions, parametergit s
 
     % *** Generate list of information to loop through. ***
     looping_output_list = LoopGenerator(parameters.loop_list, parameters.loop_variables);
@@ -109,6 +109,12 @@ function [] = RunAnalysis(functions, parameters)
                 % Save
                 save([dir_out filename], variable, '-v7.3'); 
             end
+        end
+        
+        % If the run functions return a continue flag & the continue flag
+        % is false, break the for loop. 
+        if isfield(parameters, 'continue_flag') && ~parameters.continue_flag
+            break
         end
     end 
 end 
