@@ -87,7 +87,7 @@ function [file_string]=CreateFileStrings(file_format_cell, mouse, day, stack_num
          elseif searching
 
             % We're creating a file string for searching directories, put a * in this place.
-            file_format_output_cell(day_index)={'*'}; 
+            file_format_output_cell(stack_index)={'*'}; 
 
          % If the stack is empty, but we're not searching
          else
