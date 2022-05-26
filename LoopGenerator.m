@@ -80,7 +80,8 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
     
     % Put into output list as a true/false list.
-    looping_output_list.load = change_in_iterator ~= 0;
+    holder = change_in_iterator ~= 0;
+    looping_output_list.load = num2cell(holder);
 
     % Save locations
 
@@ -96,8 +97,26 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
     
     % Put into output list as a true/false list.
-    looping_output_list.save = change_in_iterator ~= 0;
+     holder = change_in_iterator ~= 0;
+    looping_output_list.save = num2cell(holder);
 
+    % Change to structure for easier (non-ordered indexing) use.
+
+    % Get names for structure
+    structure_names ={};  % {'load'; 'save'};
+    for i = 1:size(loop_list.iterators,1)
+        structure_names = [structure_names; [loop_list.iterators{i, 1} '_name']; [loop_list.iterators{i,1}, '_iteration']];
+    end
+   
+    output_structure_eval_string = ['output_structure = struct(''load'', looping_output_list.load, ''save'', looping_output_list.save '];
+    for i =  1:size(structure_names,1)
+        output_structure_eval_string = [output_structure_eval_string ', ''' structure_names{i} ''', looping_output_list.iterators(:,' num2str(i) ')'];
+    end
+    output_structure_eval_string = [output_structure_eval_string ' );'];
+
+    eval(output_structure_eval_string);
+    looping_output_list = output_structure; 
+   
 end
 
 function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
