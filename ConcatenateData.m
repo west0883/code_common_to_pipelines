@@ -40,7 +40,6 @@ function [parameters] = ConcatenateData(parameters)
             parameters.concatenated_origin = {};
         end
 
-
         % If data to concatenate isn't empty, add it to the
         % concatenated data 
         if ~isempty(parameters.data)
@@ -69,6 +68,8 @@ end
 
 function [concatenated_data, concatenated_origin] = SubConcatenateData(concatenated_data, data, concatDim, celli, concatenated_origin, origin) 
     
+    % Update origin with number of instances included in data.
+    origin = [size(data, concatDim); origin];
     % Initialize empty output
     try
         concatenated_data = cat(concatDim, concatenated_data, data);
