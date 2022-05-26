@@ -238,17 +238,17 @@ else
 
     % -- CREATE SOME AXES TO DRAW ON 
 
-    position = get(ax, 'Position'); 
-    xLim = get(ax, 'XLim'); 
-    yLim = get(ax, 'YLim'); 
-    ax1 = axes('Position',position,'Color','none',... 
-    'XLim',xLim,'YLim',yLim); 
-    hold on 
-    position = get(ax, 'Position'); 
-    xLim = get(ax, 'XLim'); 
-    yLim = get(ax, 'YLim'); 
-    ax2 = axes('Position',position,'Color','none',... 
-    'XLim',xLim,'YLim',yLim); 
+%     position = get(ax, 'Position'); 
+%     xLim = get(ax, 'XLim'); 
+%     yLim = get(ax, 'YLim'); 
+%     ax1 = axes('Position',position,'Color','none',... 
+%     'XLim',xLim,'YLim',yLim); 
+%     hold on 
+%     position = get(ax, 'Position'); 
+%     xLim = get(ax, 'XLim'); 
+%     yLim = get(ax, 'YLim'); 
+%     ax2 = axes('Position',position,'Color','none',... 
+%     'XLim',xLim,'YLim',yLim); 
     hold on 
 
 
@@ -264,14 +264,14 @@ else
     while but1 == 1
         [xi,yi,but1] = ginput(1);
 
-        plot(xi,yi,'ro','Parent',ax1)
+        plot(xi,yi,'ro','Parent',ax)
         hold on
 
        n = n+1;
 
         xx(n) = xi;
         yy(n) = yi;
-        line(xx,yy,'Parent',ax1)
+        line(xx,yy,'Parent',ax)
         hold on
 
     end
@@ -280,7 +280,7 @@ else
         n = n+1;
         xx(n) = xx(1);
         yy(n) = yy(1);
-        line(xx,yy,'Parent',ax1)
+        line(xx,yy,'Parent',ax)
         hold on
 
     % -- STORE OUTPUT VARIABLE XY COORDINATES FOR CLOSED POLYGON
@@ -294,8 +294,8 @@ else
         xys = spline(t,xy,ts); 
 
 
-        delete(ax1); 
-        plot(xys(1,:),xys(2,:),'b-','Parent',ax2); 
+        delete(ax); 
+        plot(xys(1,:),xys(2,:),'b-','Parent',ax); 
         drawnow 
     end
 
@@ -304,9 +304,9 @@ else
         pause(v3) 
 
         if v2 == 1 
-        delete(ax1); 
+        delete(ax); 
         else 
-        delete(ax2) 
+        delete(ax) 
         end 
 
     end    
