@@ -98,6 +98,7 @@ function [] = RunAnalysis(functions, parameters)
         % *** Loading ***
         % Check each potential thing to load
         load_fields = fieldnames(parameters.loop_list.things_to_load);
+        variable = cell(numel(load_fields),1);
         for loadi = 1:numel(load_fields)
             
             % Figure out if that item should be loaded
@@ -137,11 +138,11 @@ function [] = RunAnalysis(functions, parameters)
                             % up to that point to load -- because that's how
                             % loading structures works in Matlab. 
                             index = find(variable_string == '.', 1);
-                            variable = load([input_dir filename], variable_string(1:index-1)); 
+                            variable{loadi} = load([input_dir filename], variable_string(1:index-1)); 
                            
     
                         else
-                            variable = load([input_dir filename], variable_string); 
+                            variable{loadi}= load([input_dir filename], variable_string); 
                            
                         end 
                     end
@@ -191,9 +192,9 @@ function [] = RunAnalysis(functions, parameters)
             if ~isfield(this_load_item, 'load_function')
                 
                 variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
-                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+                variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                 
-                eval(['retrieved_value = variable.' variable_string ';']); 
+                eval(['retrieved_value = variable{loadi}.' variable_string ';']); 
             end 
             
             % Assign to the specific name in parameters structure
@@ -311,7 +312,7 @@ function [] = RunAnalysis(functions, parameters)
 %                           % end     
                     else
                         % If not a structure or if user is okay saving as structure, save variable as usual
-                        variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+                        variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
 
                         % Convert to non-generic variable name
                         eval([variable_string ' = variable;']);
