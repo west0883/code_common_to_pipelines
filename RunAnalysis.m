@@ -100,7 +100,7 @@ function [] = RunAnalysis(functions, parameters)
                 variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                 
                 % Load 
-
+                retrieved_value = cell(numel(load_fields),1);
                 % Make sure file exists
                 if isfile([input_dir filename])
 
@@ -110,7 +110,7 @@ function [] = RunAnalysis(functions, parameters)
                     if isfield(this_load_item, 'load_function')
                         
                         load_function = this_load_item.load_function; 
-                        retrieved_value = load_function([input_dir filename]); 
+                        retrieved_value{loadi} = load_function([input_dir filename]); 
                        
                     else 
                         % Check if "variable" has a period in it (and therefore
@@ -197,11 +197,11 @@ function [] = RunAnalysis(functions, parameters)
                     variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
                     variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                     
-                    eval(['retrieved_value = variable_in{loadi}.' variable_string ';']); 
+                    eval(['retrieved_value{loadi} = variable_in{loadi}.' variable_string ';']); 
                 end 
             end
             % Assign to the specific name in parameters structure 
-            parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
+            parameters = setfield(parameters, load_fields{loadi}, retrieved_value{loadi});
             
         end
 
