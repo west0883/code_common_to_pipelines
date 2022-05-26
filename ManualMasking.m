@@ -13,13 +13,18 @@
 % Outputs: 
 % masks-- a 
 
-function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, axis_for_drawing)
+function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, axis_for_drawing, flip)
     
     % If no input for axes, set default axes to current axes.
     if nargin < 3
         axis_for_drawing = gca;
     end
 
+    % If no input for flipping or not, set flip to false (because should
+    % now be plotting on the axis given by higher-level function).
+    if nargin < 4
+        flip = false;
+    end
     % Apply any existing masks to image_to_mask
     indices_of_mask=[];
     
@@ -60,8 +65,12 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
         % output the coordinates of the ROI drawn
         ROI1=PolyDraw(axis_for_drawing, 1); 
         
-        % Make a mask of the ROI drawn 
-        mask1=flipud(poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2)));    
+        % Make a mask of the ROI drawn, depends on if call said to flip.
+        if flip
+            mask1=flipud(poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2)));    
+        else 
+            mask1 = poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2));
+        end 
 
         % Add the new mask to the matrix of masks that have been drawn so far
         masks=cat(3, masks, mask1); 
