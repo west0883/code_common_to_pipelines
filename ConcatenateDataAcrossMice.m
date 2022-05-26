@@ -38,6 +38,7 @@ function [] =ConcatenateDataAcrossMice(periods_all, parameters)
             
             % Get the input directory
             dir_in = [dir_input_base '\' mouse '\'];
+            parameters.dir_in = dir_in;
             
             % Get specific name of input filename.
             file_name_input = CreateFileStrings(input_file_name,[], [], [], period, false);
