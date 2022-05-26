@@ -30,6 +30,9 @@ function [] =ConcatenateDataAcrossMice(periods_all, parameters)
         % Make a matrix to hold on to the names of each mouse.
         mice_labels = cell(size(mice_all,2), 1);
         
+        % Make a matrix to hold the number of instances per mouse
+        instances_per_mouse = [];
+        
         % For each mouse 
         for mousei=1:size(mice_all,2)
             mouse=mice_all(mousei).name;
@@ -54,17 +57,24 @@ function [] =ConcatenateDataAcrossMice(periods_all, parameters)
             eval(['mouse_instances = ' variable_name_input ';']); 
 
             % Concatenate data (ONLY THE MEAN OF EACH)
-            concatenated_data = cat(concatDim, concatenated_data, mouse_instances.mean);
-            
+            try
+                concatenated_data = cat(concatDim, concatenated_data, mouse_instances.mean);
+            catch 
+                disp(['Dimension error in mouse ' mouse ', period ' period]);
+            end
+            % Grab the number of instances
+            instances_per_mouse = [instances_per_mouse, size(mouse_instances.all_instances, concatDim)];
         end
         % Take mean and std. You want to take it of the MEAN per
         % animal. 
         holder.mean = nanmean(concatenated_data, concatDim); 
         holder.std = std(concatenated_data, [], concatDim, 'omitnan');
-
+        
         % Put data into same structure.
         holder.all_mice =concatenated_data;
         holder.mouse = mice_labels;
+        holder.instances_per_mouse = instances_per_mouse;
+        holder.instances_total = nansum(instances_per_mouse);
 
         % Get specific name of output variable
         variable_name_output = CreateFileStrings(output_variable_name,[], [], [], period, false);

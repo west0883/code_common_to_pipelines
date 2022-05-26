@@ -61,7 +61,6 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
                 % something generic. 
                 eval(['Timeseries= ' input_data_variable ';']);
                 
-                
                 % Get the filename of corresponding behavior segments.
                 segment_filename = CreateFileStrings(input_segment_name,[], [], stack_number, [], false);
                 
@@ -114,11 +113,21 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
                             % that fit into the time window.
                             if isfield(parameters, 'use_set_window') && parameters.use_set_window
                                 C(segmentDim) = {all_ranges(1: parameters.fps * time_window_use )};  %This is our index into timeseries.  
+                           
+                            % Otherwise, add the ranges normally
+                            else
+                                 C(segmentDim) = {all_ranges}; 
                             end 
-                            
-                            % Concatenate
-                            segmented_data =cat(concatDim, segmented_data, Timeseries(C{:})); 
-                        end 
+                           
+                            % Try to concatenate; if one doesn't fit the
+                            % dimensions, skip it for now.
+                            try 
+                                segmented_data =cat(concatDim, segmented_data, Timeseries(C{:})); 
+                            catch 
+                                disp(['Dimension error in stack ' stack_number ', period ' period]);
+                                continue
+                            end 
+                        end
                     end 
                     % Get the output variable name
                     output_variable_name = CreateFileStrings(output_variable,[], [], [], period, false);
@@ -128,14 +137,7 @@ function [] = SegmentTimeseriesData(periods_all, parameters)
                 end 
                 
                 % Get the right names for saving per stack. 
-                
-                % If the user gave a separate output variable for searching (sometimes 
-                % needed when the desired input and output is a structure), use that
-%                 if isfield(parameters, 'output_variable_searching')
-%                     variable_searching_name = CreateFileStrings(output_variable,[], [], [], [], true);
-%                 else 
-                    variable_searching_name = CreateFileStrings(output_variable,[], [], [], [], true);
-               % end 
+                variable_searching_name = CreateFileStrings(output_variable,[], [], [], [], true);
                 saving_filename = CreateFileStrings(output_filename,[], [], stack_number, [], false);
                 
                 % Save per stack. 

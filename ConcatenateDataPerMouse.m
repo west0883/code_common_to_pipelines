@@ -44,7 +44,10 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
 
             % Get the day name.
             day=mice_all(mousei).days(dayi).name; 
-
+            
+            % Tell user where you are.
+            disp(['mouse ' mouse ', day ' day]);
+            
             % Establish more specific input directories 
             dir_in = [dir_input_base mouse '\' day '\'];
             parameters.dir_in = dir_in;
@@ -74,10 +77,15 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
 
                     % Get the data that corresponds to that period
                     eval(['instances = ' variable_name_input ';']); 
-                 
-                    % Concatenate instances across specified dimension.
-                    concatenated_data = cat(concatDim, concatenated_data, instances);
                     
+                    if ~isempty(instances)
+                        % Concatenate instances across specified dimension.
+                        try
+                            concatenated_data = cat(concatDim, concatenated_data, instances);
+                        catch 
+                            disp(['Dimension error in period ' period]);
+                        end 
+                    end
                     % Switch concatenated data back to period-specific
                     % name.
                     eval([period '_concatenated_data = concatenated_data;']); 
@@ -87,6 +95,8 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
         end
     
          % Save matrix for each period for each mouse 
+         disp(['Saving mouse ' mouse]);
+         
          % For each period,
          for periodi = 1:size(periods_all, 1) 
              period = periods_all{periodi};
@@ -112,7 +122,7 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
              filename_output = CreateFileStrings(output_file_name,[], [], [], period, false);
              
              % Save
-             save([dir_out filename_output], variable_name_output);
+             save([dir_out filename_output], variable_name_output, '-v7.3');
         
          end 
     end
