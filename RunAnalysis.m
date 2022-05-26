@@ -184,9 +184,12 @@ function [] = RunAnalysis(functions, parameters)
         % Pull out loaded variable here, so you can still iterate below the
         % load level. 
         for loadi = 1:numel(load_fields)        
+
+            % Get this set of load fields.
+            this_load_item = parameters.loop_list.things_to_load.(load_fields{loadi}); 
             
-            % If this doesn't need to be loaded in specially 
-            if ~isfield(this_load_item, 'load_function')  
+             % If this doesn't need to be loaded in specially 
+             if ~isfield(this_load_item, 'load_function')  
                 
                 % Only if the item was loaded & this load field  of variable_in isn't empty.
                 if  ~isempty(variable_in{loadi}) % load_flag &&
@@ -203,7 +206,7 @@ function [] = RunAnalysis(functions, parameters)
                     % sub-indexing.)
                     eval(['retrieved_value{loadi} = variable_in{loadi}.' variable_string ';']);
                 end 
-            end
+             end
            
             % Assign to the specific name in parameters structure 
             parameters.(load_fields{loadi}) = retrieved_value{loadi};
@@ -231,6 +234,9 @@ function [] = RunAnalysis(functions, parameters)
      
         % For each function, (run recursively on "parameters" structure).
         for functioni = 1:numel(functions)
+            
+            % Also pass functioni to functions, if needed.
+            parameters.functioni = functioni;
             
             % If this is the second or more function & there are things to hold onto, 
             if functioni > 1 
