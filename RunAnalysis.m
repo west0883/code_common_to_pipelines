@@ -138,17 +138,14 @@ function [] = RunAnalysis(functions, parameters)
                             % loading structures works in Matlab. 
                             index = find(variable_string == '.', 1);
                             variable = load([input_dir filename], variable_string(1:index-1)); 
-                            retrieved_value = getfield(variable, variable_string(1:index -1), variable_string(index+1:end)); 
+                           
     
                         else
                             variable = load([input_dir filename], variable_string); 
-                            retrieved_value = getfield(variable, variable_string);
+                           
                         end 
                     end
                     
-                    % Assign to the specific name in parameters structure
-                    parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
-   
                 else
                     % If the user said to abort this item if there was no existing file
                     % (default is to just give the message)
@@ -184,6 +181,26 @@ function [] = RunAnalysis(functions, parameters)
            continue 
         end
         
+        % Pull out loaded variable here, so you can still iterate below the
+        % load level. 
+        for loadi = 1:numel(load_fields)
+
+            % Skip if there was a special load function because retrieved
+            % value was already defiened. 
+            eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
+            if ~isfield(this_load_item, 'load_function')
+                
+                variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
+                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+                
+                eval(['retrieved_value = variable.' variable_string ';']); 
+            end 
+            
+            % Assign to the specific name in parameters structure
+            parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
+        
+        end
+
         % Create continue flags for each level of iterator, so functions
         % run by user can tell RunAnalysis to skip only certain levels.
         parameters.continue_flag = repmat({true}, size(parameters.loop_list.iterators,1), 1);
