@@ -178,10 +178,12 @@ function [] = RunAnalysis(functions, parameters)
         
         % Pull out loaded variable here, so you can still iterate below the
         % load level. 
-        for loadi = 1:numel(load_fields)
+        for loadi = 1:numel(load_fields)        
             
-            % Only if this load field  of variable_in isn't empty.
-            if  ~isempty(variable_in{loadi})
+            % Figure out if that item was loaded this iteration.
+            load_flag = getfield(looping_output_list, {itemi}, [load_fields{loadi} '_load']);
+            % Only if the item was loaded & this load field  of variable_in isn't empty.
+            if load_flag && ~isempty(variable_in{loadi})
                 % Skip if there was a special load function because retrieved
                 % value was already defiened. 
                 eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
@@ -272,19 +274,6 @@ function [] = RunAnalysis(functions, parameters)
         % Check each potential thing to save
         for savei = 1:numel(save_fields)
             
-            % Get data out of parameters structure
-            variable_out =  getfield(parameters, save_fields{savei});
-
-            % Assign to variable strings now (so you can iterate between
-            % saves). 
-            variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
-            
-            % If not a structure or if user is okay saving as structure, save variable as usual
-            variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
-
-            % Convert to non-generic variable name
-            eval([variable_string ' = variable_out;']);
-
             % Find out if you save at this level.
             save_flag = getfield(looping_output_list, {itemi}, [save_fields{savei} '_save']);
             
@@ -292,6 +281,19 @@ function [] = RunAnalysis(functions, parameters)
             % out the "save_now flag", 
             if ~parameters.dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
     
+                % Get data out of parameters structure
+                variable_out =  getfield(parameters, save_fields{savei});
+    
+                % Assign to variable strings now (so you can iterate between
+                % saves). 
+                variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
+                
+                % If not a structure or if user is okay saving as structure, save variable as usual
+                variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
+    
+                % Convert to non-generic variable name
+                eval([variable_string ' = variable_out;']);
+
                 % Create strings for all saving info
                 dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
                 filename_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'filename');
