@@ -59,7 +59,7 @@ function [] = CorrelateTimeseriesData(periods_all, parameters)
                  
                 % Try rearranging all Timeseries data here to try the
                 % parfor loop on instancei. 
-
+                
                 % For each instance
                 for instancei=1:size(Timeseries, parameters.instancesDim) 
                     C_source1(parameters.instancesDim) = {instancei};
