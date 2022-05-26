@@ -39,9 +39,9 @@ function [] = RunAnalysis(functions, parameters)
         parameters.loop_list.digitNumber = 3; 
     end
 
-     % Generate list of things to loop through.
+    % Generate list of things to loop through.
     [looping_output_list, maxIterations] = LoopGenerator(parameters.loop_list, parameters.loop_variables);
-
+   
     % Initialize iterator for looping through looping_output_list
     itemi = 1; 
 
@@ -199,8 +199,8 @@ function [] = RunAnalysis(functions, parameters)
                 % sure it's a graphics object handle specifically or else 
                 % Matlab freaks out. Making sure it's specifically a figure
                 % is good to be sure someone didn't make a typo.
-                if isgraphics(variable) && strcmp(get(variable, 'type'), 'figure')
-                    
+                if  strcmp(class(variable), 'matlab.ui.Figure')
+                    % ~ismatrix(variable) && isgraphics(variable) 
                     % If it is a figure, save as figure. Uses the "compact"
                     % fig format, apparently makes it faster & smaller
                     % file.
@@ -247,7 +247,7 @@ function [] = RunAnalysis(functions, parameters)
 %                           %      eval([subvariables{i,1} ' = ' subvariables{i,2} ';']);
 %                           % end     
                     else
-                         % If not a structure or if user is okay saving as structure, save variable as usual
+                        % If not a structure or if user is okay saving as structure, save variable as usual
                         variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
 
                         % Convert to non-generic variable name
