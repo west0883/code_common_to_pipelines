@@ -111,9 +111,9 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
         % the relevant looping level.
         numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
     
-        % Find level of changing iterator. Include 0 at beginning to use for
-        % saveing first dataset (so each entry corresponds to a change from the previous entry).
-        change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+        % Find level of changing iterator. Include 0 at END to use for
+        % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
+        change_in_iterator = diff([cell2mat(numeric_iterations); 0]);
         
         % Put into output list as a true/false list.
         holder = change_in_iterator ~= 0;
@@ -186,10 +186,11 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         eval(['lower_values = {' lower_values_string '};']);
         
         % If the list you want is a numeric array inside a cell array, get
-        % it out and turn to a cell array.
+        % it out, turn into strings, then turn to a cell array.
         if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1}) && isnumeric(lower_values{1})
-            lower_values = num2cell(lower_values{:}); 
-        
+            lower_values = num2str(lower_values{1}(:));
+            lower_values = cellstr(lower_values);
+           
         % Or remove the extra nesting step.
         elseif max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && iscell(lower_values{1})
             lower_values = lower_values{1,1};
