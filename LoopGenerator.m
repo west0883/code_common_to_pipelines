@@ -78,13 +78,6 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     % For each item in the things_to_load field, 
     if isfield(loop_list,'things_to_load' )
 
-        % Remove any empty fields from looping_output_list.iterators. (If there is a
-        % things_to_load field, this list must be goign to RunAnalysis,
-        % which can't handle empty entries). 
-        array_of_empties = cellfun(@isempty, looping_output_list.iterators);
-        [r, ~] = find(array_of_empties);
-        looping_output_list.iterators(unique(r), :) = []; 
-
         load_fields = fieldnames(loop_list.things_to_load);
         for i = 1:numel(load_fields)
             
@@ -98,6 +91,10 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             % the relevant looping level.
             numeric_iterations = looping_output_list.iterators(:, load_level_index*2);
         
+            % Replace empty elements with NaN, to preserve list length.
+            ind = find(cellfun(@isempty, numeric_iterations));
+            numeric_iterations(ind) = {NaN};
+
             % Find level of changing iterator. Include 0 at beginning to use for
             % loading first dataset (so each entry corresponds to a change from the previous entry).
             change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
@@ -115,12 +112,6 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     % For each item in the things_to_save field, 
     if isfield(loop_list,'things_to_save' )
 
-        % Remove any empty fields from looping_output_list.iterators. (If there is a
-        % things_to_save field, this list must be goign to RunAnalysis,
-        % which can't handle empty entries). 
-        array_of_empties = cellfun(@isempty, looping_output_list.iterators);
-        [r, ~] = find(array_of_empties);
-        looping_output_list.iterators(unique(r), :) = []; 
         save_fields = fieldnames(loop_list.things_to_save);
         
         for i = 1:numel(save_fields)
@@ -135,6 +126,10 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             % the relevant looping level.
             numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
         
+            % Replace empty elements with NaN, to preserve list length.
+            ind = find(cellfun(@isempty, numeric_iterations));
+            numeric_iterations(ind) = {NaN};
+           
             % Find level of changing iterator. Include 0 at END to use for
             % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
             change_in_iterator = diff([cell2mat(numeric_iterations); 0]);
@@ -208,7 +203,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             last_value = higher_values{end-1};
             if isempty(last_value)
                 % Put in padding.S
-                looping_output_list_2 = [looping_output_list_2; higher_values,cell(1,2)];
+                looping_output_list_2 = [looping_output_list_2; higher_values,{NaN}, {NaN}];
                 
                 continue
             end 
@@ -266,7 +261,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             % Skip if lower value is NaN.
             if isnan(lower_value)
                 % Put in padding.
-                looping_output_list_2 = [looping_output_list_2; higher_values, cell(1,2)];
+                looping_output_list_2 = [looping_output_list_2; higher_values, {NaN}, {NaN}];
                  maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
                 continue
             end
@@ -274,7 +269,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             % Skip if lower value is empty.
             if  isempty(lower_value)
                  % Put in p adding.
-                looping_output_list_2 =  [looping_output_list_2; higher_values, cell(1,2)];
+                looping_output_list_2 =  [looping_output_list_2; higher_values, {NaN}, {NaN}];
                 maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
                 continue
             end
