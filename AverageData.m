@@ -15,9 +15,9 @@ function [parameters] = AverageData(parameters)
     end
 
     %  Take the mean
-    parameters.average = mean(parameters.data, parameters.averageDim, 'omitnan'); 
+    parameters.average = squeeze(mean(parameters.data, parameters.averageDim, 'omitnan')); 
 
     % Take the standard deviation
-    parameters.std_dev = std(parameters.data, 0, parameters.averageDim, 'omitnan'); 
+    parameters.std_dev = squeeze(std(parameters.data, 0, parameters.averageDim, 'omitnan')); 
 
 end 
