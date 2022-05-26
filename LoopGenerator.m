@@ -22,12 +22,17 @@
 
 function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
     
+    % Make sure both a "load" and "save" field are included.
+    if ~isempty(find(contains(loop_list(:,1),'load'),1)) || ~isempty(find(contains(loop_list(:,1),'save'), 1)) 
+        error('A ''load'' and ''save'' condition are required in the first position of one of the rows of the loop matrix.');
+    end
+    
     % Initialize output variable as empty cell.
-    looping_output_list = {};
+    looping_output_list = cell(1, size(loop_list,2));
 
     % Make a cell array to count how many iterations are at each level? (might
     % vary per mouse or whatever)
-    loop_iteration_counts = cell(1, size(loop_list,1));
+    loop_iteration_counts = cell(1, size(loop_list,2));
     
     % For each loop level the user asks for,
     for i = 1:size(loop_list,1)
@@ -43,10 +48,12 @@ function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
 
             case 'load'
                  % Continue (deal with this inside LoopSubGenerator or at end).
+                 loop_iteration_counts = [loop_iteration_counts; {'load', 'load', 'load', 'load'}];
                  continue
            
             case 'save'
                 % Continue (deal with this inside LoopSubGenerator or at end).
+                loop_iteration_counts = [loop_iteration_counts; {'save', 'save', 'save', 'save'}];
                 continue 
 
             otherwise % Give catch error message.
@@ -70,6 +77,42 @@ function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
 end
 
 function [looping_output_list_2, loop_iteration_counts_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables, loop_iteration_counts)
+    
+    looping_output_list_2 = cell(1, size(looping_output_list, 2) + 2);
 
-    % Check if the next entry of loop_list is "load" or "save"?
+    % For each entry of the iterator at the previous (higher) level,
+    for higheri = 1:size(looping_output_list, 1)
+        
+        % Determine if load or save, put in.
+%         if strcmp(looping_output_list{higheri,1} == 'load')
+% 
+%             holder = cell(1, size(looping_output_list_2,2));
+%             holder{1} = 'load';
+%             looping_output_list_2 = [looping_output_list_2; holder]; 
+% 
+%             continue; 
+% 
+%         end
+
+        % Get out all previous iterating values
+        higher_values = looping_output_list(higheri, 1:(i-1));
+
+        % Get the current values based on higher_values and where current
+        % value is stored
+        string_searches = [loop_list(1:i, 4) ];
+        number_searches = looping_output_list(higheri, [2:2:end]);
+
+        lower_values_string = CreateFileStrings(loop_list{i,3}, string_searches, number_searches ); 
+        eval(['lower_values = {' lower_values_string '};']);
+
+        % Loop through each current value
+        for loweri = 1:numel(lower_values)
+            
+            lower_value = lower_values{loweri};
+
+            % Concatenate to end of looping_output_list_2
+            looping_output_list_2 = [looping_output_list_2; higher_values, lower_value, loweri];
+
+        end
+    end
 end
