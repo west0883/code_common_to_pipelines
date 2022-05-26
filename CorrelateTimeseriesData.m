@@ -109,7 +109,8 @@ function [corrs] = SubCorrelater(data)
         % as size source number x source number.
         corrs = NaN (num_sources); 
        
-        % Iterate through first sources.
+        % Iterate through first sources. Could do only upper triangle, but
+        % with the way parfor works that would actually be slower.
         parfor i1 = 1:num_sources
            
             for i2 = 1:num_sources
