@@ -113,9 +113,9 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             % Get the level of loading from loop_list
             load_level_index = find(strcmp(loop_list.iterators(:,1), load_level));
             
-            % Get column of looping_output_list that corresponds to the numeric iterations of
-            % the relevant looping level.
-            numeric_iterations = looping_output_list.iterators(:, load_level_index*2);
+            % Get columns of looping_output_list that corresponds to all the
+            % numeric iterations leading down to the relevant looping level.
+            numeric_iterations = looping_output_list.iterators(:, 2:2:load_level_index*2);
         
             % Replace empty elements with NaN, to preserve list length.
             ind = find(cellfun(@isempty, numeric_iterations));
@@ -123,10 +123,10 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
 
             % Find level of changing iterator. Include 0 at beginning to use for
             % loading first dataset (so each entry corresponds to a change from the previous entry).
-            change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+            change_in_iterator = diff([zeros(1, size(numeric_iterations,2)); cell2mat(numeric_iterations)], [], 1);
             
             % Put into output list as a true/false list.
-            holder = change_in_iterator ~= 0;
+            holder = any(change_in_iterator, 2);
             looping_output_list = setfield(looping_output_list, 'load', load_fields{i}, num2cell(holder));
         
         end 
@@ -150,7 +150,7 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             
             % Get column of looping_output_list that corresponds to the numeric iterations of
             % the relevant looping level.
-            numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
+            numeric_iterations = looping_output_list.iterators(:, 2:2:save_level_index*2);
         
             % Replace empty elements with NaN, to preserve list length.
             ind = find(cellfun(@isempty, numeric_iterations));
@@ -158,10 +158,10 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
            
             % Find level of changing iterator. Include 0 at END to use for
             % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
-            change_in_iterator = diff([cell2mat(numeric_iterations); 0]);
+            change_in_iterator = diff([cell2mat(numeric_iterations); zeros(1,size(numeric_iterations,2))]);
             
             % Put into output list as a true/false list.
-            holder = change_in_iterator ~= 0;
+            holder = any(change_in_iterator, 2);
             looping_output_list = setfield(looping_output_list, 'save', save_fields{i}, num2cell(holder));
         end 
     else
