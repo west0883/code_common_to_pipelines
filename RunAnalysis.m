@@ -138,12 +138,43 @@ function [] = RunAnalysis(functions, parameters)
          
                 % Get data out of parameters structure
                 variable =  getfield(parameters, save_fields{savei});
-    
-                % Convert to non-generic variable name
-                eval([variable_string ' = variable;']);
-    
-                % Save
-                save([output_dir filename], variable_string, '-v7.3'); 
+                
+                % Check if variable is a figure handle. First have to make
+                % sure it's a graphics object handle specifically or else 
+                % Matlab freaks out. Making sure it's specifically a figure
+                % is good to be sure someone didn't make a typo.
+                if isgraphics(variable) && strcmp(get(variable, 'type'), 'figure')
+                    
+                    % If it is a figure, save as figure. Uses the "compact"
+                    % fig format, apparently makes it faster & smaller
+                    % file.
+                    savefig(variable, [output_dir filename],'compact'); 
+
+                    % If user wants to save a fancy version (in addition to
+                    % .fig type)
+
+                    % Get out the loop_list info 
+                    fig_list_variable = getfield(parameters.loop_list.things_to_save, save_fields{savei});
+                    
+                    % Check if user put in a saveas type. 
+                    if isfield(fig_list_variable, 'saveas_type')
+
+                        % Get the save type
+                        fig_type = getfield(fig_list_variable, 'saveas_type');
+                        
+                        % Save the fancy figure, too. 
+                        saveas(variable, filename, fig_type);
+
+                    end 
+                else
+                    % If not a figure, save as variable. 
+
+                    % Convert to non-generic variable name
+                    eval([variable_string ' = variable;']);
+                    
+                    % Save
+                    save([output_dir filename], variable_string, '-v7.3'); 
+                end
             end
         end
         
