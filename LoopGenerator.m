@@ -77,6 +77,14 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
 
     % For each item in the things_to_load field, 
     if isfield(loop_list,'things_to_load' )
+
+        % Remove any empty fields from looping_output_list.iterators. (If there is a
+        % things_to_load field, this list must be goign to RunAnalysis,
+        % which can't handle empty entries). 
+        array_of_empties = cellfun(@isempty, looping_output_list.iterators);
+        [r, ~] = find(array_of_empties);
+        looping_output_list.iterators(unique(r), :) = []; 
+
         load_fields = fieldnames(loop_list.things_to_load);
         for i = 1:numel(load_fields)
             
@@ -106,7 +114,15 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     % Save locations
     % For each item in the things_to_save field, 
     if isfield(loop_list,'things_to_save' )
+
+        % Remove any empty fields from looping_output_list.iterators. (If there is a
+        % things_to_save field, this list must be goign to RunAnalysis,
+        % which can't handle empty entries). 
+        array_of_empties = cellfun(@isempty, looping_output_list.iterators);
+        [r, ~] = find(array_of_empties);
+        looping_output_list.iterators(unique(r), :) = []; 
         save_fields = fieldnames(loop_list.things_to_save);
+        
         for i = 1:numel(save_fields)
             
             % Get the level of saveing for that item. 
