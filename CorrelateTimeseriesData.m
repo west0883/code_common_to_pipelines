@@ -3,126 +3,124 @@
 % 2/2/21
 
 % A function that correlates timeseries data.
-% Is general, so you can use with all kinds of timeseries data. I think is
-% limited to timeseries of 3 dimensions, though.
+% Is general, so you can use with all kinds of timeseries data.
 
 
-function [] = CorrelateTimeseriesData(periods_all, parameters)
+function [parameters] = CorrelateTimeseriesData(parameters)
    
-    % Tell user where data is being saved
-    disp(['Data saved in '  parameters.dir_out_base{1}]); 
+    % If there's a "values" field from RunAnalysis, print updating message
+    % for user. 
+    if isfield(parameters, 'values')
+        message = ['Correlating '];
+        for dispi = 1:numel(parameters.values)/2
+           message = [message ', ' parameters.values{dispi}];
+        end
+        disp(message); 
+    end
 
-    % For each mouse 
-    for mousei=1:size( parameters.mice_all,2)
-        mouse= parameters.mice_all(mousei).name;
-    
-        % Create data input directory and cleaner output directory. 
-        dir_in_data = CreateFileStrings(parameters.dir_in_data_base, mouse, [], [], [], false);
-        parameters.dir_in = dir_in_data;
-        dir_out= CreateFileStrings(parameters.dir_out_base, mouse, [], [], [], false);
-        mkdir(dir_out);
-        
-        % For each period,
-        for periodi = 1:size(periods_all,1)
-            period = periods_all{periodi};
-            
-            % Display mouse & day
-            disp(['mouse ' mouse ' period ' period]);
-            
-            % Get filename.
-            filename = CreateFileStrings(parameters.input_data_name, mouse, [], [], period, false);
+    % If no segment ranges, 
+    if isempty(parameters.data)
+        % Do nothing. Put correlation as empty as well.
+        parameters.correlation =[]; 
+       
+    else
+        % Number of sources (for convenience)
+        num_sources = size(parameters.data, parameters.sourceDim);
 
-            % Load the timeseries data 
-            load([dir_in_data filename]);
-          
-            % Get relevant segment variable name
-            variable_name = CreateFileStrings(parameters.input_data_variable, mouse, [], [], period, false);
-            
-             % Change the variable name of the timeseries data to
-            % something generic. 
-            eval(['Timeseries= ' variable_name ';']);
+        % If there are more dimensions than just the 2 necessary ones, 
+        number_of_dimensions = ndims(parameters.data);
+        if number_of_dimensions > 2
 
-            % Take the ranges using a flexible number of dimensions
-            % C is a holder of as many ':' indices as we need.
-            C_source1 = repmat({':'},1, ndims(Timeseries));
-            C_source2 = repmat({':'},1, ndims(Timeseries));
-        
-            % If no segment ranges, 
-            if isempty(Timeseries)
-                % Do nothing. Continue to next period
-                continue
-            else
-                % Number of sources (for convenience)
-                num_sources = size(Timeseries, parameters.corrDim);
+            extra_dimensions = setdiff([1:number_of_dimensions], [parameters.sourceDim parameters.timeDim]);
+           
+            % Get size of each dimension
+            extra_dimension_sizes = size(parameters.data, extra_dimensions);
 
-                % Make a holding matrix that will hold all the
-                % correlations. Is set as size source number x source
-                % number x instance number.
-                Corrs = NaN (num_sources, num_sources, size(Timeseries, parameters.instancesDim));
-                 
-                % Try rearranging all Timeseries data here to try the
-                % parfor loop on instancei. 
-                
-                % List of timeseries pairs for correlations (to try
-                % speeding things up)
+            % Make a list of dimensions to grab. 
+            loop_list.iterators = cell(number_of_dimensions-2, 1); 
 
-                % For each instance
-                for instancei=1:size(Timeseries, parameters.instancesDim) 
-                    C_source1(parameters.instancesDim) = {instancei};
-                    C_source2(parameters.instancesDim) = {instancei};
+            % Cycle through each dimension more than just the 2 necessary ones, 
+            for dimi = extra_dimensions
 
-                    timeseries_list = NaN(num_sources^2, size(Timeseries,parameters.timeDim), 2);
+                loop_list.iterators(dimi-2, 1:3) = {['dim' num2str(dimi)], {['1:' num2str(extra_dimension_sizes(dimi-2))]}, ['dim' num2str(dimi) '_iterator']};
 
-                    % And for each timeseries to be correlated
-                    for source1i=1:num_sources
-                        C_source1(parameters.corrDim) = {source1i};
-
-                        for source2i=1:num_sources
-                            C_source2(parameters.corrDim) = {source2i};
-                            
-                            timeseries_list((source1i*num_sources-1)+source2i,:,1) = Timeseries(C_source1{:});
-                            timeseries_list((source1i*num_sources-1)+source2i,:,2) = Timeseries(C_source2{:});
-                            
-                        end 
-                    end
-                    
-                    % Vector of corrs.
-                    corrs_hold = NaN(size(timeseries_list,1),1);
-                    % For each pair in the timeseries list,
-                    parfor i = 1:size(timeseries_list,1)
-                       
-                        % Perform correlation.
-                        R=corrcoef(timeseries_list(i,:,1), timeseries_list(i,:,2)); 
-                        corrs_hold(i) = R(1,2);
-
-                        % Store correlation coefficient in Corrs
-                        % matrix.
-                       
-                    end 
-
-                     Corrs(:,:,instancei)=reshape(corrs_hold, [num_sources num_sources])';
-
-                end 
+                % Grab the necessary blocks of timeseries. 
             end 
 
-            % Calculate mean and standard deviation of correlations
-            meanCorrs = nanmean(Corrs, parameters.instancesDim); 
-            stdCorrs = std(Corrs, [], parameters.instancesDim, 'omitnan');
-            
-            % Get the output variable name
-            output_variable_name = CreateFileStrings(parameters.output_variable, mouse, [], [], period, false);
-           
-            % Convert correlation data to the desired variable name
-            eval([output_variable_name '.all_instances = Corrs;']);
-            eval([output_variable_name '.mean = meanCorrs;']);
-            eval([output_variable_name '.std = stdCorrs;']);          
-        
-            % Get the right names for saving per period.
-            saving_filename = CreateFileStrings(parameters.output_filename, mouse , [], [], period, false);
-            
-            % Save per period. 
-            save([dir_out saving_filename], output_variable_name); 
+            looping_output_list = LoopGenerator(loop_list, []);
 
-        end
+            % Make a list of grabbign dimensions. 
+            dimensions_extraction = repmat({':'},1, number_of_dimensions);
+
+            fields =  fieldnames(looping_output_list); 
+
+            % Make a holder correlation matrix. 
+            correlations = NaN([num_sources, num_sources, extra_dimension_sizes]);
+
+            % For each looping output,
+            for itemi = 1:size(looping_output_list,1)
+                
+                for dimi = 1:numel(extra_dimensions)
+                    dim =  getfield(looping_output_list, {itemi}, fields{dimi *2});
+                    dimensions_extraction{extra_dimensions(dimi)} = dim;
+                end
+
+                % Grab needed timeseries.
+                data = parameters.data(dimensions_extraction{:});
+              
+                % Permute to put dimensions in best place, if needed
+                if parameters.sourceDim > parameters.timeDim
+
+                    data = permute(data, [2 1]);
+
+                end
+
+                % Correlate
+                [corrs] = SubCorrelater(data);
+
+                % Put into a holding matrix of all corrs. 
+                correlations(dimensions_extraction{:}) = corrs;
+
+            end 
+
+            % Pass to parameters object.
+            parameters.correlation = correlations;
+
+   
+        % Or else just 2 dimensions (the minimum)
+        else 
+
+             % permute dimensions so it's easier to use parfor.
+             data = permute(parameters.data, [parameters.sourceDim parameters.timeDim]); 
+
+             % Correlate
+             parameters.correlation = SubCorrelater(data);
+
+        end 
     end
-end
+end 
+
+
+function [corrs] = SubCorrelater(data)
+
+        num_sources = size(data,1);
+
+        % Make a holding matrix that will hold all the correlations. Is set 
+        % as size source number x source number.
+        corrs = NaN (num_sources); 
+       
+        % Iterate through first sources.
+        parfor i1 = 1:num_sources
+           
+            for i2 = 1:num_sources
+                
+                % Perform correlation.
+                R=corrcoef(data(i1,:), data(i2,:)); 
+     
+                % Store correlation coefficient in corrs
+                % matrix.
+                corrs(i1, i2) = R(1,2);
+            end
+           
+        end 
+end 
