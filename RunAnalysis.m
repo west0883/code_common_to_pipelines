@@ -125,6 +125,14 @@ function [] = RunAnalysis(functions, parameters)
                             % loading structures works in Matlab. 
                             index = find(variable_string == '{', 1);
                             variable_in{loadi} = load([input_dir filename], variable_string(1:index-1)); 
+
+                         elseif contains(variable_string, '(')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '(', 1);
+                            variable_in{loadi} = load([input_dir filename], variable_string(1:index-1)); 
     
                         else
                             variable_in{loadi}= load([input_dir filename], variable_string); 
@@ -355,6 +363,31 @@ function [] = RunAnalysis(functions, parameters)
                         
                         % Save
                         save([output_dir filename], variable_string, '-v7.3'); 
+
+                    % If the variable name shows it's a normal array
+                    elseif contains(variable_string, '(')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '(', 1);
+                            variable_string = variable_string(1:index-1); 
+                        
+                        % Save
+                        save([output_dir filename], variable_string, '-v7.3'); 
+
+
+                    elseif contains(variable_string, '.')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '.', 1);
+                            variable_string = variable_string(1:index-1); 
+                        
+                        % Save
+                        save([output_dir filename], variable_string, '-v7.3');    
+
                     else 
                        % Save 
                         save([output_dir filename], variable_string, '-v7.3'); 
