@@ -72,7 +72,7 @@ function [] = RunAnalysis(functions, parameters)
         % for each keyword's field.
         parameters.values = cell(size(parameters.keywords));
         for i = 1: numel(parameters.keywords)
-            parameters.values{i} = getfield(looping_output_list(itemi), cell2mat(parameters.keywords(i)));
+            parameters.values{i} = looping_output_list(itemi).(cell2mat(parameters.keywords(i)));
         end
 
         % *** Loading ***
@@ -81,7 +81,7 @@ function [] = RunAnalysis(functions, parameters)
         for loadi = 1:numel(load_fields)
             
             % Figure out if that item should be loaded
-            load_flag = getfield(looping_output_list, {itemi}, [load_fields{loadi} '_load']);
+            load_flag = looping_output_list(itemi).([load_fields{loadi} '_load']);
             
             % If it should be loaded, start loading process
             if load_flag
@@ -91,10 +91,11 @@ function [] = RunAnalysis(functions, parameters)
                 variable_in{loadi} = [];
 
                 % Get the filename & input variable name formatting cells
-                dir_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'dir');
-                filename_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'filename');
-                variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
-             
+
+                dir_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).dir;
+                filename_cell = parameters.loop_list.things_to_load(load_fields{loadi}).filename;
+                variable_cell = parameters.loop_list.things_to_load(load_fields{loadi}).variable;
+
                 input_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
                 variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
@@ -105,8 +106,8 @@ function [] = RunAnalysis(functions, parameters)
                 if isfile([input_dir filename])
 
                     % If there is a load function for this field, use that
-                    eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';']);
-                    
+                    this_load_item = parameters.loop_list.things_to_load.(load_fields{loadi}); 
+                   
                     if isfield(this_load_item, 'load_function')
                         
                         load_function = this_load_item.load_function; 
@@ -168,7 +169,7 @@ function [] = RunAnalysis(functions, parameters)
            % Go to the next item i value where there's loading for the
            % failed load field. Loadi is whatever it was when the load look
            % broke.
-           eval(['holder =  [looping_output_list(itemi + 1:end).' load_fields{loadi} '_load];']);
+           holder = looping_output_list(itemi + 1:end).([load_fields{loadi} '_load']);
            
            % If there's no next one, finish the loop 
            if isempty (find(holder, 1))
@@ -191,18 +192,18 @@ function [] = RunAnalysis(functions, parameters)
                 if  ~isempty(variable_in{loadi}) % load_flag &&
                     % Skip if there was a special load function because retrieved
                     % value was already defiened. 
-                    eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
+                    this_load_item = parameters.loop_list.things_to_load.(load_fields{loadi});
         
-                        
-                    variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
+                    variable_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).variable;
                     variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                     
-                    eval(['retrieved_value{loadi} = variable_in{loadi}.' variable_string ';']); 
+                    retrieved_value{loadi} = variable_in{loadi}.(variable_string);
                 end 
             end
+           
             % Assign to the specific name in parameters structure 
-            parameters = setfield(parameters, load_fields{loadi}, retrieved_value{loadi});
-            
+            parameters.(load_fields{loadi}) = retrieved_value{loadi};
+         
         end
 
         % Create continue flags for each level of iterator, so functions
@@ -216,6 +217,8 @@ function [] = RunAnalysis(functions, parameters)
         parameters.maxIterations = [];
         parameters.maxIterations.numbers_only = [];
         for i = 1:size(parameters.loop_list.iterators,1)
+            parameters.max_iterations.(parameters.loop_list.iterators{i,3}) = maxIterations(itemi, i);
+
             parameters.maxIterations = setfield(parameters.maxIterations, parameters.loop_list.iterators{i,3}, maxIterations(itemi, i));
             parameters.maxIterations.numbers_only = [parameters.maxIterations.numbers_only maxIterations(itemi, i)];
         end
@@ -236,7 +239,7 @@ function [] = RunAnalysis(functions, parameters)
                     for holdi = 1:numel(parameters.loop_list.things_to_hold(functioni - 1,:))
                         
                         hold_name = parameters.loop_list.things_to_hold{functioni - 1,holdi};
-                        holder_data =  setfield(holder_data, hold_name , getfield(parameters, hold_name));
+                        holder_data.(hold_name) = parameters.(hold_name); 
                        
                     end 
                 end 
@@ -245,7 +248,7 @@ function [] = RunAnalysis(functions, parameters)
                 if isfield(parameters.loop_list, 'things_to_rename')
                     for renamei = 1:size(parameters.loop_list.things_to_rename{functioni - 1},1)
                         
-                        parameters = setfield(parameters, parameters.loop_list.things_to_rename{functioni - 1}{renamei, 2}, getfield(parameters, parameters.loop_list.things_to_rename{functioni - 1}{renamei, 1}));
+                        parameters.(parameters.loop_list.things_to_rename{functioni - 1}{renamei, 2}) = parameters.(parameters.loop_list.things_to_rename{functioni - 1}{renamei, 1});
             
                     end 
                 end
@@ -265,8 +268,8 @@ function [] = RunAnalysis(functions, parameters)
                 % For each of the items in this level of 'things_to_hold'
                 for holdi = 1:numel(parameters.loop_list.things_to_hold(functioni - 1,:))
                     
-                    hold_name = parameters.loop_list.things_to_hold{functioni -1,holdi};
-                    parameters =  setfield(parameters, hold_name , getfield(holder_data, hold_name));
+                    hold_name = parameters.loop_list.things_to_hold{functioni - 1,holdi};
+                    parameters.(hold_name) = holder_data.(hold_name);
                    
                 end 
             end 
@@ -282,8 +285,8 @@ function [] = RunAnalysis(functions, parameters)
             % saves). 
 
             % Get data out of parameters structure
-            variable_out =  getfield(parameters, save_fields{savei});
-            variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
+            variable_out = parameters.(save_fields{savei});
+            variable_cell = parameters.loop_list.things_to_save.(save_fields{savei}).variable;
             variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
 
             % Convert to non-generic variable name
