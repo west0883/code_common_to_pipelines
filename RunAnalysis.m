@@ -16,7 +16,7 @@
 % loop_list_1.things_to_load.data.load_level = 'stack';
 % loop_variables.mice_all = mice_all;
 
-function [] = RunAnalysis(functions, parametergit s
+function [] = RunAnalysis(functions, parameters)
 
     % *** Generate list of information to loop through. ***
     looping_output_list = LoopGenerator(parameters.loop_list, parameters.loop_variables);
@@ -26,17 +26,17 @@ function [] = RunAnalysis(functions, parametergit s
 
         % *** Loading ***
         
-        % Get this list of loading and saving string-creating keywords and
+        % Get this list of loading and saving string-creating parameters.keywords and
         % variables
         % Keywords should be the names of each iterator, which are in the
         % first column of iterators cell. 
-        keywords = parameters.loop_list.iterators(:,1);
+        parameters.keywords = parameters.loop_list.iterators(:,1);
 
         % Values are the corresponding values in the looping output list
         % for each keyword's field.
-        values = cell(size(keywords));
-        for i = 1: numel(keywords)
-            values{i} = getfield(looping_output_list(itemi), keywords{i});
+        parameters.values = cell(size(parameters.keywords));
+        for i = 1: numel(parameters.keywords)
+            parameters.values{i} = getfield(looping_output_list(itemi), cell2mat(parameters.keywords(i)));
         end
 
         % Check each potential thing to load
@@ -54,15 +54,15 @@ function [] = RunAnalysis(functions, parametergit s
                 filename_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'filename');
                 variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
              
-                input_dir = CreateStrings(dir_cell, keywords, values);
-                filename = CreateStrings(filename_cell, keywords, values);
-                variable = CreateFileStrings(variable_cell, keywords, values);
+                input_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
+                filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
+                variable = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
                 
                 % Load 
                 loaded_variable = load([input_dir filename], variable); 
 
                 % Assign to the specific name in parameters structure
-                parameters = setfield(parameters, variable, getfield(loaded_variable, variable));
+                parameters = setfield(parameters, load_fields{loadi}, getfield(loaded_variable, variable));
             end 
         end
 
@@ -85,8 +85,9 @@ function [] = RunAnalysis(functions, parametergit s
         save_fields = fieldnames(parameters.loop_list.things_to_save);
         for savei = 1:numel(save_fields)
             
-            % If you save at this item level, 
-            save_flag = getfield(looping_output_list, {itemi}, 'save');
+            % Find out if you save at this level.
+            save_flag = getfield(looping_output_list, {itemi}, [save_fields{savei} '_save']);
+            
             if save_flag
     
                 % Create strings for all saving info
@@ -94,9 +95,9 @@ function [] = RunAnalysis(functions, parametergit s
                 filename_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'filename');
                 variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
              
-                output_dir = CreateStrings(dir_cell, keywords, values);
-                filename = CreateStrings(filename_cell, keywords, values);
-                variable_string = CreateFileStrings(variable_cell, keywords, values);
+                output_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
+                filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
+                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
 
                 mkdir(output_dir);
          
