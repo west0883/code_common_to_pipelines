@@ -14,7 +14,8 @@ function [parameters] = EvaluateOnData(parameters)
     evaluation_string = CreateStrings(parameters.evaluation_instructions, parameters.keywords, parameters.values);
     
     % Calculate
-    eval(['data_evaluated = ' evaluation_string ';']);
+    eval(evaluation_string);
+    
 
     % Put into output.
     parameters.data_evaluated = data_evaluated;
