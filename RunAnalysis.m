@@ -112,7 +112,13 @@ function [] = RunAnalysis(functions, parameters)
                             % loading structures works in Matlab. 
                             index = find(variable_string == '.', 1);
                             variable{loadi} = load([input_dir filename], variable_string(1:index-1)); 
-                           
+                        elseif contains(variable_string, '{')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '{', 1);
+                            variable{loadi} = load([input_dir filename], variable_string(1:index-1)); 
     
                         else
                             variable{loadi}= load([input_dir filename], variable_string); 
