@@ -8,16 +8,18 @@
 %           you're adding this data to. 
 %       parameters.concatDim -- the dimension the data should be
 %       concatenated across.
-% Output: parameters.concatenated_data 
-        % - Structure with fields:
-        %       "all_instances" -- the concatenated data
-        %       "mean" -- the mean of the data
-        %       "std" -- the std of the data
+% Output: 
+
+% parameters.concatenated_data - the concatenated data.
+% parameters.concatenated_origin  - a cell array listing where this data came from. 
+  
 
 function [parameters] = ConcatenateData(parameters)
     
     % Display progress message to user.
     MessageToUser('Concatenating ', parameters);
+
+    origin = parameters.values; 
     
     % If parameters.data has only one entry (no cells/not a cell array), or if user said to
     % concatenated across (instead of within) cells. 
@@ -32,10 +34,17 @@ function [parameters] = ConcatenateData(parameters)
             parameters.concatenated_data = [];
         end
 
+        % If a cell array with info about the origin of the entries doesn't
+        % exist yet, create it as empty cell array.
+        if ~isfield(parameters, 'concatenated_origin')
+            parameters.concatenated_origin = {};
+        end
+
+
         % If data to concatenate isn't empty, add it to the
         % concatenated data 
         if ~isempty(parameters.data)
-            parameters.concatenated_data = SubConcatenateData(parameters.concatenated_data, parameters.data, parameters.concatDim, celli); 
+            [parameters.concatenated_data, parameters.concatenated_origin] = SubConcatenateData(parameters.concatenated_data, parameters.data, parameters.concatDim, celli, parameters.concatenated_origin, origin); 
         end
 
     % If parameters.data has more than one entry, in cell form 
@@ -51,18 +60,19 @@ function [parameters] = ConcatenateData(parameters)
         for celli = 1:numel(parameters.data)
             if ~isempty(parameters.data{celli})
 
-                parameters.concatenated_data{celli} = SubConcatenateData(parameters.concatenated_data{celli}, parameters.data{celli}, parameters.concatDim, celli); 
+                [parameters.concatenated_data{celli}, parameters.concatenated_origin{celli}] = SubConcatenateData(parameters.concatenated_data{celli}, parameters.data{celli}, parameters.concatDim, celli, parameters.concatenated_origin{celli}, origin); 
 
             end
         end
     end 
 end
 
-function [concatenated_data] = SubConcatenateData(concatenated_data, data, concatDim, celli) 
+function [concatenated_data, concatenated_origin] = SubConcatenateData(concatenated_data, data, concatDim, celli, concatenated_origin, origin) 
     
     % Initialize empty output
     try
         concatenated_data = cat(concatDim, concatenated_data, data);
+        concatenated_origin = cat(concatDim, concatenated_origin, {origin});
     catch 
         if isempty(celli)
             disp(['Dimension error.']);
