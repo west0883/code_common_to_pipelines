@@ -13,8 +13,17 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
     
     % Get original parameter names.
     digitNumber = parameters.digitNumber;
-    mice_all = paramters.mice_all; 
-
+    mice_all = parameters.mice_all; 
+    input_data_name = parameters.input_data_name;
+    dir_dataset_name = parameters.dir_dataset_name;
+    
+    % Get mouse and day name.
+    mouse= mice_all(mousei).name;
+    day = mice_all(mousei).days(dayi).name; 
+    
+    % Create data input directory and cleaner output directory. 
+    dir_in=CreateFileStrings(dir_dataset_name, mouse, day, [], false);
+    
     % Find if there's a stack list entry for that day. If not, set
     % to 'all' as a default. 
     if isfield(mice_all(mousei).days(dayi), 'stacks')==0
@@ -59,7 +68,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
            stackList.filenames=[]; 
            
            % For each stack in the list, 
-           for stacki = 1:size(list,2)
+           for stacki = 1:size(list,1)
                   
                % Take range of the name in the file list that corresponds to the stack number, according to number of
                % letters that came before the stack number and the
@@ -71,7 +80,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
                
                % Assign these to the stackList variable.
                stackList.numberList = [stackList.numberList; stack_number]; 
-               stackList.filenames = [stackList.filenames; filenames]; 
+               stackList.filenames = [stackList.filenames; filename]; 
            end
            
        else  % If a character string, but not 'all', throw an error.
@@ -88,10 +97,10 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
         stackList.filenames=[]; 
         
         % For each member of numberList, get the filename.
-        for i = 1:size(number_list,1)
+        for i = 1:size(stackList.numberList,1)
             
             % Get the stack nubmer
-            stack_number = number_list(i, :); 
+            stack_number = stackList.numberList(i, :); 
             
             % Get the whole file name. 
             stackname=CreateFileStrings(input_data_name, [], [], stack_number, false); 
