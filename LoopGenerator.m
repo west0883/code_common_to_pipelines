@@ -128,7 +128,7 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
                 looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
 
             else
-                 looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
+                looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
             end
         end
     end
