@@ -37,6 +37,18 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
        error('A non-empty field in loop list called "save_level" is required.');
     end 
     
+    % Display to user what iterators are being used.
+    display_string = ['Looping through'];
+    for i = 1:size(loop_list.iterators,1)
+        display_string = [display_string ' ' loop_list.iterators{i,1}];
+        
+        % On all but last entry, also include a comma.
+        if i ~= size(loop_list.iterators,1)
+            display_string = [display_string ','];
+        end
+    end
+    disp(display_string);
+
     % Initialize output variable as empty cell.
     looping_output_list.iterators = {cell(1, 2)};
     
@@ -85,7 +97,7 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     
     % Put into output list as a true/false list.
     looping_output_list.save = change_in_iterator ~= 0;
-    
+
 end
 
 function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
