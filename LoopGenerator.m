@@ -215,8 +215,8 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         % Get the current values based on higher_values and where current
         % value is stored. Make a list of keys-values for creating the
         % right strings.
-        string_searches = [loop_list(1:i-1, 3) ];
-        number_searches = looping_output_list(higheri, [2:2:end]);
+        string_searches = [loop_list(1:i-1, 3); loop_list(1:i -1,1)];
+        number_searches = [looping_output_list(higheri, [2:2:end]) looping_output_list(higheri, [1:2:end])  ];
         
         % Create a string for "eval" evalutaion of lower value name.
         lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
