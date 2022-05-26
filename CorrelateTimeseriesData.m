@@ -125,5 +125,5 @@ function [corrs] = SubCorrelater(data)
         end 
 
         % Now convert to only lower triangle. 
-        corrs = tril(corrs, -1);
+       % corrs = tril(corrs, -1);
 end 
