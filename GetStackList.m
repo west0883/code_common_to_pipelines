@@ -9,7 +9,16 @@
 % day- a character array; is the name/date of the day
 % parameters - is all the other parameters you're using in your pipeline,
 % including the input file name format and directory and the number of digits used in the stack number name. 
-function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_name, digitNumber)
+function [stackList]=GetStackList(mousei, dayi, parameters)
+    
+    % Convert parameter names to something easier to use.
+    dir_dataset_name = parameters.dir_dataset_name; 
+    input_data_name = parameters.input_data_name;
+    dir_exper = parameters.dir_exper; 
+    mice_all = parameters.mice_all; 
+    digitNumber = parameters.digitNumber;
+    mouse = mice_all(mousei).name;
+    day = mice_all(mousei).days(dayi).name;
     
     % Find if there's a stack list entry for that day. If not, set
     % to 'all' as a default. 
@@ -18,7 +27,10 @@ function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_nam
     elseif isempty(mice_all(mousei).days(dayi).stacks)==1
        mice_all(mousei).days(dayi).stacks='all'; 
     end
-            
+    
+    % Create a combined input name.
+    combined_input_name = [dir_dataset_name input_data_name];
+    
     % Find the correct stack list entry of mice_all. 
     useStacks=mice_all(mousei).days(dayi).stacks; 
             
@@ -30,25 +42,25 @@ function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_nam
        if strcmp(useStacks, 'all')
 
            % Create a file name string for searching. 
-           searching_name=CreateFileStrings(input_data_name, [], [], [], [], true); 
+           searching_name=CreateFileStrings(combined_input_name, mouse, day, [], [], true); 
 
            % If it is the character string 'all', list stacks from
            % the day directory. 
-           list=dir([dir_in searching_name]);
+           list=dir(searching_name);
            
            % Get the stack number for naming output files using the 
            % input_data_name (allows for flexible outside-package file names). 
 
            % Find the index of the stack number within the input data name.  
-           stackindex=find(contains(input_data_name,'stack number'));
+           stackindex=find(contains(combined_input_name,'stack number'));
 
            % Find the letters in the filename before the stack
            % number. 
-           pre_stackindex=horzcat(input_data_name{1:(stackindex-1)}); 
-
+           pre_stack_name = CreateFileStrings(combined_input_name(1:stackindex-1), mouse, day, [], [], false); 
+           
            % Find the number of letters in the filename before
            % the stack number. 
-           length_pre=length(pre_stackindex); 
+           length_pre=length(pre_stack_name); 
            
            % Initialize empty character array list of stack numbers and file names.
            stackList.numberList=[];
@@ -60,8 +72,9 @@ function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_nam
                % Take range of the name in the file list that corresponds to the stack number, according to number of
                % letters that came before the stack number and the
                % number of digits assigned to the stack number. 
-               stack_number=list(stacki).name(length_pre+1:length_pre+digitNumber); 
-
+               combined_name = [list(stacki).folder '\' list(stacki).name];
+               stack_number=combined_name(length_pre+1 : length_pre+digitNumber); 
+               
                % Get the filename of the stack. 
                filename=[list(stacki).name];
                
@@ -97,5 +110,4 @@ function [stackList]=GetStackList(mousei, dayi, mice_all, dir_in, input_data_nam
 
         end 
     end 
-                
 end
