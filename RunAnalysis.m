@@ -316,6 +316,10 @@ function [] = RunAnalysis(functions, parameters)
                         
                         % Save
                         save([output_dir filename], variable_string, '-v7.3'); 
+                    else 
+                       % Save 
+                        save([output_dir filename], variable_string, '-v7.3'); 
+
                     end 
                 end
 
