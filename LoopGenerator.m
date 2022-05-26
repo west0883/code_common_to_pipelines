@@ -103,26 +103,29 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     % Change to structure for easier (non-ordered indexing) use.
 
     % Get names for structure
-    structure_names ={};  % {'load'; 'save'};
+    structure_names ={};  
     for i = 1:size(loop_list.iterators,1)
-        structure_names = [structure_names; [loop_list.iterators{i, 1} '_name']; [loop_list.iterators{i,1}, '_iteration']];
+        structure_names = [structure_names; [loop_list.iterators{i, 1}]; [loop_list.iterators{i,3}]];
+    end
+
+    % Put values in to structure, starting with load and save fields.
+    for ii = 1:size(looping_output_list.iterators,1)
+        output_structure(ii).load = looping_output_list.load{ii};
+        output_structure(ii).save = looping_output_list.save{ii};
+
+        % Now run for each iterator field. 
+        for i = 1:numel(structure_names)
+            output_structure(ii).(structure_names{i}) = looping_output_list.iterators{ii, i};
+        end
     end
    
-    % Put together structure via a big eval of a string, because making
-    % structures is ridiculous.
-    output_structure_eval_string = ['output_structure = struct(''load'', looping_output_list.load, ''save'', looping_output_list.save '];
-    for i =  1:size(structure_names,1)
-        output_structure_eval_string = [output_structure_eval_string ', ''' structure_names{i} ''', looping_output_list.iterators(:,' num2str(i) ')'];
-    end
-    output_structure_eval_string = [output_structure_eval_string ' );'];
-
-    eval(output_structure_eval_string);
-    looping_output_list = output_structure; 
+    % Rename output structure
+    looping_output_list = output_structure'; 
    
 end
 
 function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
-    
+
     % Initialize recursion version of output list as empty cell.
     looping_output_list_2 = {}; 
 
@@ -141,7 +144,7 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         
         % Create a string for "eval" evalutaion of lower value name.
         lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
-        eval(['lower_values = {' lower_values_string '};']);
+        eval(['lower_values = {loop_variables.' lower_values_string '};']);
         
         % If the list you want is a numeric array inside a cell array, get
         % it out and turn to a cell array.
