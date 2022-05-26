@@ -18,7 +18,7 @@
 function [new_string]=CreateStrings(string_format_cell, keywords, variables)
     
     % Make a new cell array to manipulate. 
-    new_string=string_format_cell;
+    new_string= string_format_cell;
     
     % For each keyword,
     for keywordi = 1:numel(keywords)
@@ -31,17 +31,18 @@ function [new_string]=CreateStrings(string_format_cell, keywords, variables)
         % If there is a position, but there's no corresponding keyword
         if ~isempty(keyword_index) & isempty(variables{keywordi})
 
-            error(['No variable giving for ''' keyword ''.']);
+            error(['No variable given for ''' keyword '''.']);
 
         elseif ~isempty(keyword_index)
             % Put the variable in place of the keyword
             for subi = 1:numel(keyword_index)
-                new_string(keyword_index) = {variables{keywordi}};
+                new_string(keyword_index) = {num2str(variables{keywordi})};
             end
         end
     end 
     
     % Now concatenate everything into a single string.
-    new_string=horzcat(new_string{:}); 
-
+    if iscell(new_string)
+        new_string=horzcat(new_string{:}); 
+    end
 end 
