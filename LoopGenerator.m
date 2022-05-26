@@ -201,7 +201,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         % If previous value entry is empty
         if i > 1
             last_value = higher_values{end-1};
-            if isempty(last_value)
+            if isempty(last_value) || any(isnan(last_value))
                 % Put in padding.S
                 looping_output_list_2 = [looping_output_list_2; higher_values,{NaN}, {NaN}];
                 
