@@ -93,8 +93,10 @@ function [] = RunAnalysis(functions, parameters)
         % are there). Makes it easier for called functions to throw
         % errors/know where they are in analysis without accessing loop_list.  
         parameters.maxIterations = [];
+        parameters.maxIterations.numbers_only = [];
         for i = 1:size(parameters.loop_list.iterators,1)
             parameters.maxIterations = setfield(parameters.maxIterations, parameters.loop_list.iterators{i,3}, maxIterations(itemi, i));
+            parameters.maxIterations.numbers_only = [parameters.maxIterations.numbers_only maxIterations(itemi, i)];
         end
 
         % *** Run functions chosen by user. *** 
