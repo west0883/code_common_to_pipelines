@@ -99,13 +99,15 @@ function [] = RunAnalysis(functions, parameters)
                         % loading structures works in Matlab. 
                         index = find(variable_string == '.', 1);
                         variable = load([input_dir filename], variable_string(1:index-1)); 
+                        retrieved_value = getfield(variable, variable_string(1:index -1), variable_string(index+1:end)); 
 
                     else
                         variable = load([input_dir filename], variable_string); 
+                        retrieved_value = getfield(variable, variable_string);
                     end 
 
                     % Assign to the specific name in parameters structure
-                    parameters = setfield(parameters, load_fields{loadi}, getfield(variable, variable_string));
+                    parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
                 else
                     % If the user said to abort this item if there was no existing file
                     % (default is to just give the message)
