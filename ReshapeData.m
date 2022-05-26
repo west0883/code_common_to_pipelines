@@ -6,10 +6,20 @@
 % input for dimensions.
 
 function [parameters] = ReshapeData(parameters)
+    
+    % If there's a "values" field from RunAnalysis, print updating message
+    % for user. 
+    if isfield(parameters, 'values')
+        message = ['Reshaping '];
+            for dispi = 1:numel(parameters.values)/2
+               message = [message ', ' parameters.values{dispi}];
+            end
+        disp(message); 
+    end
 
-     dimensions_string = CreateStrings(parameters.reshapeDims, parameters.keywords, parameters.values);
-     eval(['dimensions = ' dimensions_string ';']);
-
-     parameters.data_reshaped = reshape(parameters.data, dimensions{:});
+    dimensions_string = CreateStrings(parameters.reshapeDims, parameters.keywords, parameters.values);
+    eval(['dimensions = ' dimensions_string ';']);
+    
+    parameters.data_reshaped = reshape(parameters.data, dimensions{:});
 
 end 
