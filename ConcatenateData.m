@@ -38,6 +38,7 @@ function [parameters] = ConcatenateData(parameters)
         % Could do cellfun, but I want to disp where the errors occur.
         for celli = 1:numel(parameters.data)
             if ~isempty(parameters.data{celli})
+
                 parameters.concatenated_data{celli} = SubConcatenateData(parameters.concatenated_data{celli}, parameters.data{celli}, parameters.concatDim, celli); 
 
             end
