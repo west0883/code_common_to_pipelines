@@ -25,7 +25,7 @@ function [subplot_rows, subplot_columns] = OptimizeSubplotNumbers(number_of_plot
     subplot_rows = floor(ratio * columns);
 
     % Make sure the optimization worked. If not, increase the number of
-    % columns, or if that isn't enough, increase the number of rows.
+    % rows (usually looks weird if you try increasing columns here), or if that isn't enough, increase the number of columns
     while subplot_columns * subplot_rows < number_of_plots
         
         % Try increasing number of rows
