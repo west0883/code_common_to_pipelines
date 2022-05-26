@@ -93,8 +93,8 @@ function [] = RunAnalysis(functions, parameters)
                 % Get the filename & input variable name formatting cells
 
                 dir_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).dir;
-                filename_cell = parameters.loop_list.things_to_load(load_fields{loadi}).filename;
-                variable_cell = parameters.loop_list.things_to_load(load_fields{loadi}).variable;
+                filename_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).filename;
+                variable_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).variable;
 
                 input_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
@@ -197,7 +197,11 @@ function [] = RunAnalysis(functions, parameters)
                     variable_cell = parameters.loop_list.things_to_load.(load_fields{loadi}).variable;
                     variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                     
-                    retrieved_value{loadi} = variable_in{loadi}.(variable_string);
+                    %retrieved_value{loadi} = variable_in{loadi}.(variable_string);
+                    % Assign. (Keeping "eval" here because doing dynamic
+                    % field names doesn't work for '(', '.', or '{'
+                    % sub-indexing.)
+                    eval(['retrieved_value{loadi} = variable_in{loadi}.' variable_string ';']);
                 end 
             end
            
