@@ -8,15 +8,8 @@
 
 function [parameters] = CorrelateTimeseriesData(parameters)
    
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Correlating '];
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Correlating ', parameters);
 
     % If no segment ranges, 
     if isempty(parameters.data)

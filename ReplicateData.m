@@ -7,15 +7,8 @@
 
 function [parameters] = ReplicateData(parameters)
     
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Replicating '];
-            for dispi = 1:numel(parameters.values)/2
-               message = [message ', ' parameters.values{dispi}];
-            end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Replicating ', parameters);
 
     toReplicate_string = CreateStrings(parameters.toReplicate, parameters.keywords, parameters.values);
     eval(['toReplicate = ' toReplicate_string ';']);

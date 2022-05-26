@@ -16,15 +16,8 @@
 
 function [parameters] = ConcatenateData(parameters)
     
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Concatenating '];
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Concatenating ', parameters);
 
     % If parameters.data has more than one entry, in cell form 
     if iscell(parameters.data)

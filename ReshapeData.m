@@ -7,15 +7,8 @@
 
 function [parameters] = ReshapeData(parameters)
     
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Reshaping '];
-            for dispi = 1:numel(parameters.values)/2
-               message = [message ', ' parameters.values{dispi}];
-            end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Reshaping ', parameters); 
     
     % Put in reshaping directions to make this as flexible as possible.
     toReshape_string = CreateStrings(parameters.toReshape, parameters.keywords, parameters.values);

@@ -4,15 +4,8 @@
 
 function [parameters] = RollData(parameters)
 
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Rolling '];
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Rolling ', parameters);
 
     % If the roll dimension is greater than the roll window plus 1 step
     % (can get at least 1 roll out of it) 

@@ -8,11 +8,9 @@
 
 function [parameters] = SegmentTimeseriesData(parameters)
         
-        message = ['Segmenting '];
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
+        % Display progress message to user.
+        MessageToUser('Segmenting ', parameters); 
+
         % If parameters.time_ranges has more than one entry, in cell form 
         if iscell(parameters.time_ranges)
            

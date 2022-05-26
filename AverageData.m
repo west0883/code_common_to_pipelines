@@ -4,15 +4,8 @@
 
 function [parameters] = AverageData(parameters)
 
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        message = ['Averaging '];
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
-    end
+    % Display progress message to user.
+    MessageToUser('Averaging ', parameters);
 
     %  Take the mean
     parameters.average = squeeze(mean(parameters.data, parameters.averageDim, 'omitnan')); 
