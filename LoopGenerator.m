@@ -16,11 +16,11 @@
 %      'load', [], [], []; 
 %      'save', [], [], []};
 
-% loop_variables -- a cell array (? or maybe structure) of the variables
+% loop_variables -- a structure of the variables
 % where the list of data for each can be found (Ex above would be
-% mice_all);
+% loop_variables.mice_all);
 
-function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
+function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     
     % Make sure both a "load" and "save" field are included.
     if ~isempty(find(contains(loop_list(:,1),'load'),1)) || ~isempty(find(contains(loop_list(:,1),'save'), 1)) 
@@ -28,32 +28,32 @@ function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
     end
     
     % Initialize output variable as empty cell.
-    looping_output_list = cell(1, size(loop_list,2));
+    looping_output_list = {}; %cell(1, size(loop_list,2));
 
     % Make a cell array to count how many iterations are at each level? (might
     % vary per mouse or whatever)
-    loop_iteration_counts = cell(1, size(loop_list,2));
+   % loop_iteration_counts = cell(1, size(loop_list,2));
     
     % For each loop level the user asks for,
     for i = 1:size(loop_list,1)
         
         % Check first entry to know what to do.
-        instruction = loop_variables{i,1};
+        instruction = loop_list{i,1};
 
         switch instruction
             case 'iterator'
                  % Run the output variable recursively through the LoopSubGenerator
                  % function. Needs to know where everything is, so also include other loop info variables. 
-                 [looping_output_list, loop_iteration_counts] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables, loop_iteration_counts);
-
+                 [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables);
+                  looping_output_list = looping_output_list_2;
             case 'load'
                  % Continue (deal with this inside LoopSubGenerator or at end).
-                 loop_iteration_counts = [loop_iteration_counts; {'load', 'load', 'load', 'load'}];
+                 %loop_iteration_counts = [loop_iteration_counts; {'load', 'load', 'load', 'load'}];
                  continue
            
             case 'save'
                 % Continue (deal with this inside LoopSubGenerator or at end).
-                loop_iteration_counts = [loop_iteration_counts; {'save', 'save', 'save', 'save'}];
+                %loop_iteration_counts = [loop_iteration_counts; {'save', 'save', 'save', 'save'}];
                 continue 
 
             otherwise % Give catch error message.
@@ -76,11 +76,16 @@ function [looping_ouput_list] = LoopGenerator(loop_list, loop_variables)
 %     iwant(logical(idx)) = B
 end
 
-function [looping_output_list_2, loop_iteration_counts_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables, loop_iteration_counts)
+function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
     
-    looping_output_list_2 = cell(1, size(looping_output_list, 2) + 2);
+    looping_output_list_2 = {}; %cell(1, 2);
 
-    % For each entry of the iterator at the previous (higher) level,
+    if i == 1
+        looping_output_list =  {cell(1,2)};
+    end 
+
+    % For each entry of the iterator at the previous (higher) level (skip
+    % first because it's empty)
     for higheri = 1:size(looping_output_list, 1)
         
         % Determine if load or save, put in.
@@ -95,24 +100,49 @@ function [looping_output_list_2, loop_iteration_counts_2] = LoopSubGenerator(i,l
 %         end
 
         % Get out all previous iterating values
-        higher_values = looping_output_list(higheri, 1:(i-1));
-
+        higher_values = looping_output_list(higheri, 1:2*(i-1));
+      
         % Get the current values based on higher_values and where current
         % value is stored
-        string_searches = [loop_list(1:i, 4) ];
+        string_searches = [loop_list(1:i-1, 4) ];
         number_searches = looping_output_list(higheri, [2:2:end]);
 
         lower_values_string = CreateStrings(loop_list{i,3}, string_searches, number_searches ); 
         eval(['lower_values = {' lower_values_string '};']);
+        
+        % If the list you want is a numeric array inside a cell array, get
+        % it out and turn to a cell array.
+        if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1})
+            lower_values = num2cell(lower_values{:}); 
+        
+        % Or remove the extra nesting step.
+        elseif max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && iscell(lower_values{1})
+            lower_values = lower_values{1,1};
+        end     
 
         % Loop through each current value
         for loweri = 1:numel(lower_values)
             
             lower_value = lower_values{loweri};
+            
+            % Skip if lower value is NaN.
+            if isnan(lower_value)
+                continue
+            end
 
             % Concatenate to end of looping_output_list_2
-            looping_output_list_2 = [looping_output_list_2; higher_values, lower_value, loweri];
+            if i == 1 && higheri ==1 && loweri == 1
+                looping_output_list_2(1,:) = [{lower_value}, {loweri}];
+               
+            elseif i == 1 && higheri ==1
+                looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
 
+            else
+                 looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
+            end
         end
     end
+
+    return 
+    looping_output_list_2;
 end
