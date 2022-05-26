@@ -32,11 +32,12 @@ function [parameters] = NullDistribution(parameters)
     inds_data = repmat({':'}, 1, ndims(data1) + 1);
     inds_difference = repmat({':'}, 1, ndims(data1));
 
-    % Set up holders. First entry of parameters.null_distributions will be 
-    % shuffled dataset 1, second will be shuffled dataset 2. Keep the
-    % distributions together in same file/variable/context, because they're
-    % meaningless on their own. 
+    % Set up holders, clear any existing values. First entry of 
+    % parameters.null_distributions will be shuffled dataset 1, second will 
+    % be shuffled dataset 2. Keep the distributions together in same 
+    % file/variable/context, because they're meaningless on their own. 
     parameters.null_distributions = cell(1, 2);
+    parameters.differences_of_distributions = []; 
     distributions1 = NaN(dimensions_list_1);
     distributions2 = NaN(dimensions_list_2);
     differences_of_distributions = NaN(differences_dimensions_list);
