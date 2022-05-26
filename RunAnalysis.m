@@ -50,19 +50,19 @@ function [] = RunAnalysis(functions, parameters)
             if load_flag
              
                 % Get the filename & input variable name formatting cells
-                input_dir_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'input_dir');
-                input_filename_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'input_filename');
-                input_variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'input_variable');
+                dir_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'dir');
+                filename_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'filename');
+                variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
              
-                input_dir = CreateStrings(input_dir_cell, keywords, values);
-                input_filename = CreateStrings(input_filename_cell, keywords, values);
-                input_variable = CreateFileStrings(input_variable_cell, keywords, values);
+                input_dir = CreateStrings(dir_cell, keywords, values);
+                filename = CreateStrings(filename_cell, keywords, values);
+                variable = CreateFileStrings(variable_cell, keywords, values);
                 
                 % Load 
-                loaded_variable = load([input_dir input_filename], input_variable); 
+                loaded_variable = load([input_dir filename], variable); 
 
                 % Assign to the specific name in parameters structure
-                parameters = setfield(parameters, input_variable, getfield(loaded_variable, input_variable));
+                parameters = setfield(parameters, variable, getfield(loaded_variable, variable));
             end 
         end
 
@@ -80,26 +80,35 @@ function [] = RunAnalysis(functions, parameters)
         end
 
         % *** Save  ***
-
-        % If you save at this item level, 
-        save_flag = getfield(looping_output_list, {itemi}, 'save');
-        if save_flag
-
-            % Create strings for all saving info
-            output_dir= CreateFileStrings(parameters.output_dir, keywords, values);
-            mkdir(output_dir);
-            output_filename = CreateFileStrings(parameters.output_filename, keywords, values);
-            output_variable_string = CreateFileStrings(parameters.output_variable, keywords, values);
+        
+        % Check each potential thing to save
+        save_fields = fieldnames(parameters.loop_list.things_to_save);
+        for savei = 1:numel(save_fields)
             
-            % Get data out of parameters structure
-            output_variable =  getfield(parameters, output_variable_string);
+            % If you save at this item level, 
+            save_flag = getfield(looping_output_list, {itemi}, 'save');
+            if save_flag
+    
+                % Create strings for all saving info
+                dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
+                filename_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'filename');
+                variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
+             
+                output_dir = CreateStrings(dir_cell, keywords, values);
+                filename = CreateStrings(filename_cell, keywords, values);
+                variable_string = CreateFileStrings(variable_cell, keywords, values);
 
-            % Convert to non-generic variable name
-            eval([output_variable_string ' = output_variable;']);
-
-            % Save
-            save([dir_out output_filename], output_variable, '-v7.3'); 
-
+                mkdir(output_dir);
+         
+                % Get data out of parameters structure
+                variable =  getfield(parameters, variable_string);
+    
+                % Convert to non-generic variable name
+                eval([variable_string ' = variable;']);
+    
+                % Save
+                save([dir_out filename], variable, '-v7.3'); 
+            end
         end
     end 
 end 
