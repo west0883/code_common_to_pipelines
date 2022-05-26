@@ -6,7 +6,7 @@
 % code abstractable across users with different data division levels.
 
 % Inputs:
-% loop_list - a cell array (? will maybe make a Map or something later)
+% loop_list - a cell array (? will maybe make a Map or something later, but order is immportant)
 % with information about each level to loop, where list of data for each
 % loop can be found, what iterator to use (important for finding data the next level down)
 % and when to load or save data in relation to those loops. 
@@ -16,6 +16,10 @@
 %      'stack', 'mice_all(mousei).days(dayi).stacks', 'stacki';
 %     loop_list.load_level = 'stack';
 %     loop_list.save_level = 'stack';
+
+% Things that need to be loaded, ex.
+% loop_list.things_to_load.data.load_level = 'stack'; 
+
 
 % loop_variables -- a structure of the variables
 % where the list of data for each can be found (Ex above would be
@@ -29,8 +33,8 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
        error('A non-empty field in loop list called "iterators" is required.');
     end 
     % load level field
-    if ~isfield(loop_list, 'load_level') || isempty(loop_list.load_level)
-       error('A non-empty field in loop list called "load_level" is required.');
+    if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
+       error('A non-empty field in loop list called "things_to_load" is required.');
     end 
     % save level field
     if ~isfield(loop_list, 'save_level') || isempty(loop_list.save_level)
@@ -67,22 +71,31 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     % the iterator value changes)
 
     % Load locations.
-    
-    % Get the level of loading from loop_list
-    load_level = find(strcmp(loop_list.iterators(:,1), loop_list.load_level));
-    
-    % Get column of looping_output_list that corresponds to the numeric iterations of
-    % the relevant looping level.
-    numeric_iterations = looping_output_list.iterators(:, load_level*2);
 
-    % Find level of changing iterator. Include 0 at beginning to use for
-    % loading first dataset (so each entry corresponds to a change from the previous entry).
-    change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
-    
-    % Put into output list as a true/false list.
-    holder = change_in_iterator ~= 0;
-    looping_output_list.load = num2cell(holder);
+    % For each item in the things_to_load field, 
+    load_fields = fieldnames(loop_list.things_to_load);
+    for i = 1:numel(load_fields)
+        
+        % Get the level of loading for that item. 
+        load_level = getfield(loop_list.things_to_load, load_fields{i}, 'load_level');
 
+        % Get the level of loading from loop_list
+        load_level_index = find(strcmp(loop_list.iterators(:,1), load_level));
+        
+        % Get column of looping_output_list that corresponds to the numeric iterations of
+        % the relevant looping level.
+        numeric_iterations = looping_output_list.iterators(:, load_level_index*2);
+    
+        % Find level of changing iterator. Include 0 at beginning to use for
+        % loading first dataset (so each entry corresponds to a change from the previous entry).
+        change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+        
+        % Put into output list as a true/false list.
+        holder = change_in_iterator ~= 0;
+        looping_output_list = setfield(looping_output_list, 'load', load_fields{i}, num2cell(holder));
+    
+    end 
+    
     % Save locations
 
     % Get the level of saving from loop_list
@@ -102,6 +115,9 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
 
     % Change to structure for easier (non-ordered indexing) use.
 
+    % Make empty structure to put things in.
+    output_structure = struct;
+
     % Get names for structure
     structure_names ={};  
     for i = 1:size(loop_list.iterators,1)
@@ -110,7 +126,15 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
 
     % Put values in to structure, starting with load and save fields.
     for ii = 1:size(looping_output_list.iterators,1)
-        output_structure(ii).load = looping_output_list.load{ii};
+
+        % Go through each thing to load
+        for loadi = 1:numel(load_fields)
+            % Get the yes-or-no to load
+            load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
+
+            % Set the yes-or-no to the proper place in the output structure
+            output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
+        end 
         output_structure(ii).save = looping_output_list.save{ii};
 
         % Now run for each iterator field. 
