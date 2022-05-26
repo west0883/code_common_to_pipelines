@@ -21,8 +21,12 @@ function [] = RunAnalysis(functions, parameters)
     % *** Generate list of information to loop through. ***
     looping_output_list = LoopGenerator(parameters.loop_list, parameters.loop_variables);
 
-    % For each item in the list of information to loop through, 
-    for itemi = 1: size(looping_output_list, 1)
+    % Initialize iterator for looping through looping_output_list
+    itemi = 1; 
+
+    % For each item in the list of information to loop through, (Use a
+    % while loop so you can have functions skip iterations if needed).
+    while itemi <= size(looping_output_list, 1)
 
         % *** Loading ***
         
@@ -70,9 +74,13 @@ function [] = RunAnalysis(functions, parameters)
                 end
             end 
         end
+        
+        % Create continue flags for each level of iterator, so functions
+        % run by user can tell RunAnalysis to skip only certain levels.
+        parameters.continue_flag = repmat({true}, size(parameters.loop_list.iterators,1), 1);
 
         % *** Run functions chosen by user. *** 
-    
+        
         % For each function, (run recursively on "parameters" structure).
         for functioni = 1:numel(functions)
             
@@ -93,7 +101,9 @@ function [] = RunAnalysis(functions, parameters)
             % Find out if you save at this level.
             save_flag = getfield(looping_output_list, {itemi}, [save_fields{savei} '_save']);
             
-            if save_flag
+            % If you save at this level, or if the called function sends
+            % out the "save_now flag", 
+            if save_flag || (isfield(parameters, 'save_now') && parameters.save_now)
     
                 % Create strings for all saving info
                 dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
@@ -118,9 +128,32 @@ function [] = RunAnalysis(functions, parameters)
         end
         
         % If the run functions return a continue flag & the continue flag
-        % is false, break the for loop. 
-        if isfield(parameters, 'continue_flag') && ~parameters.continue_flag
-            break
+        % on any iterator level is false
+        if isfield(parameters, 'continue_flag') && any(~[parameters.continue_flag{:}])
+           
+            % Get the first (highest-level) iterator-level that's false
+            iterator_level_to_skip = find(~[parameters.continue_flag{:}],1);
+
+            % Get the current value of that iterator 
+            current_iterator_to_skip = getfield(looping_output_list(itemi), parameters.loop_list.iterators{iterator_level_to_skip, 3});
+
+            % In looping list, find when that iterator increases by 1
+            eval(['holder = looping_output_list(:).' parameters.loop_list.iterators{iterator_level_to_skip, 3} ';']); 
+            next_iteration = find(holder == current_iterator_to_skip +1,1); 
+            
+            % If "next_iteration" isn't empty
+            if ~isempty(next_iteration)
+                
+                % Make itemi equal that location in the looping list.
+                itemi = next_iteration; 
+            
+            % If it is empty, break out of item loop & end RunAnalysis
+            else
+                break
+            end
+        else
+            % If no skipping, just increase the item iterator by 1.
+            itemi = itemi + 1;
         end
     end 
 end 
