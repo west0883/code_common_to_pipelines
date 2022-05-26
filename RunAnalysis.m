@@ -19,7 +19,16 @@
 function [] = RunAnalysis(functions, parameters)
 
     % *** Generate list of information to loop through. ***
-    looping_output_list = LoopGenerator(parameters.loop_list, parameters.loop_variables);
+    
+    % Grab the number of digits user wants to use for iterating numbers in
+    % filenames in LoopGenerator (like with stacks). Otherwise, default to 3 digist.
+    if isfield(parameters, 'digitNumber')
+       parameters.loop_list.digitNumber = parameters.digitNumber;
+    else 
+        parameters.loop_list.digitNumber = 3; 
+    end
+
+    [looping_output_list, maxIterations] = LoopGenerator(parameters.loop_list, parameters.loop_variables);
 
     % Initialize iterator for looping through looping_output_list
     itemi = 1; 
@@ -79,23 +88,14 @@ function [] = RunAnalysis(functions, parameters)
         % run by user can tell RunAnalysis to skip only certain levels.
         parameters.continue_flag = repmat({true}, size(parameters.loop_list.iterators,1), 1);
 
-        % Create list of the max iteration value that can be reached within
+        % Pull out the max iteration values that can be reached within
         % each loop level at this loop (i.e, in this mouse, how many days
-        % are there). Makes it easier for called functions to throw errors
-        % without accessing loop_list. 
-            % Initialize. 
-            parameters.max_iterations = cell(size(parameters.loop_list.iterators,1)); 
-            
-            % Largest iterator is just the 
-            % For each iterator (largest to smallest)
-                
-            for i = 2:numel(parameters.max_iterations)
-                
-    
-            end 
-
-        % paramet
-
+        % are there). Makes it easier for called functions to throw
+        % errors/know where they are in analysis without accessing loop_list.  
+        parameters.maxIterations = [];
+        for i = 1:size(parameters.loop_list.iterators,1)
+            parameters.maxIterations = setfield(parameters.maxIterations, parameters.loop_list.iterators{i,3}, maxIterations(itemi, i));
+        end
 
         % *** Run functions chosen by user. *** 
         
@@ -152,11 +152,20 @@ function [] = RunAnalysis(functions, parameters)
             % Get the first (highest-level) iterator-level that's false
             iterator_level_to_skip = find(~[parameters.continue_flag{:}],1);
 
+            % Go to next iteration of level ABOVE that. 
+            next_iterator_level = iterator_level_to_skip - 1; 
+
+            % If there are no higher levels (iterator level is 0), then
+            % you're done! Break. 
+            if next_iterator_level <= 0
+                break
+            end
+
             % Get the current value of that iterator 
-            current_iterator_to_skip = getfield(looping_output_list(itemi), parameters.loop_list.iterators{iterator_level_to_skip, 3});
+            current_iterator_to_skip = getfield(looping_output_list(itemi), parameters.loop_list.iterators{next_iterator_level, 3});
 
             % In looping list, find when that iterator increases by 1
-            eval(['holder = looping_output_list(:).' parameters.loop_list.iterators{iterator_level_to_skip, 3} ';']); 
+            eval(['holder = [looping_output_list(:).' parameters.loop_list.iterators{next_iterator_level, 3} '];']); 
             next_iteration = find(holder == current_iterator_to_skip +1,1); 
             
             % If "next_iteration" isn't empty
