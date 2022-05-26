@@ -79,6 +79,24 @@ function [] = RunAnalysis(functions, parameters)
         % run by user can tell RunAnalysis to skip only certain levels.
         parameters.continue_flag = repmat({true}, size(parameters.loop_list.iterators,1), 1);
 
+        % Create list of the max iteration value that can be reached within
+        % each loop level at this loop (i.e, in this mouse, how many days
+        % are there). Makes it easier for called functions to throw errors
+        % without accessing loop_list. 
+            % Initialize. 
+            parameters.max_iterations = cell(size(parameters.loop_list.iterators,1)); 
+            
+            % Largest iterator is just the 
+            % For each iterator (largest to smallest)
+                
+            for i = 2:numel(parameters.max_iterations)
+                
+    
+            end 
+
+        % paramet
+
+
         % *** Run functions chosen by user. *** 
         
         % For each function, (run recursively on "parameters" structure).
