@@ -62,7 +62,8 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     end
    
     % Potentially deal with "load" and "save" at the very end-->insert them
-    % based on position in loop list and loop_iteration_counts.
+    % based on changes in the relevant iterator value in loop_list. (when
+    % the iterator value drops down)
 
     % Code to work with from https://www.mathworks.com/matlabcentral/answers/322130-insert-an-array-into-another-array-in-a-specific-location
 %     iwant = zeros(1,length(B)+length(A)) ;
@@ -88,17 +89,6 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
     % first because it's empty)
     for higheri = 1:size(looping_output_list, 1)
         
-        % Determine if load or save, put in.
-%         if strcmp(looping_output_list{higheri,1} == 'load')
-% 
-%             holder = cell(1, size(looping_output_list_2,2));
-%             holder{1} = 'load';
-%             looping_output_list_2 = [looping_output_list_2; holder]; 
-% 
-%             continue; 
-% 
-%         end
-
         % Get out all previous iterating values
         higher_values = looping_output_list(higheri, 1:2*(i-1));
       
@@ -142,7 +132,4 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
             end
         end
     end
-
-    return 
-    looping_output_list_2;
 end
