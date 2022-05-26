@@ -32,14 +32,14 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     if ~isfield(loop_list, 'iterators') || isempty(loop_list.iterators)
        error('A non-empty field in loop list called "iterators" is required.');
     end 
-    % load level field
-    if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
-       error('A non-empty field in loop list called "things_to_load" is required.');
-    end 
-    % save level field
-    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
-       error('A non-empty field in loop list called "things_to_save" is required.');
-    end 
+%     % load level field
+%     if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
+%        error('A non-empty field in loop list called "things_to_load" is required.');
+%     end 
+%     % save level field
+%     if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
+%        error('A non-empty field in loop list called "things_to_save" is required.');
+%    end 
     
     % Display to user what iterators are being used.
     display_string = ['Looping through'];
@@ -84,53 +84,60 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     % Load locations.
 
     % For each item in the things_to_load field, 
-    load_fields = fieldnames(loop_list.things_to_load);
-    for i = 1:numel(load_fields)
-        
-        % Get the level of loading for that item. 
-        load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
-
-        % Get the level of loading from loop_list
-        load_level_index = find(strcmp(loop_list.iterators(:,1), load_level));
-        
-        % Get column of looping_output_list that corresponds to the numeric iterations of
-        % the relevant looping level.
-        numeric_iterations = looping_output_list.iterators(:, load_level_index*2);
+    if isfield(loop_list,'things_to_load' )
+        load_fields = fieldnames(loop_list.things_to_load);
+        for i = 1:numel(load_fields)
+            
+            % Get the level of loading for that item. 
+            load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
     
-        % Find level of changing iterator. Include 0 at beginning to use for
-        % loading first dataset (so each entry corresponds to a change from the previous entry).
-        change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+            % Get the level of loading from loop_list
+            load_level_index = find(strcmp(loop_list.iterators(:,1), load_level));
+            
+            % Get column of looping_output_list that corresponds to the numeric iterations of
+            % the relevant looping level.
+            numeric_iterations = looping_output_list.iterators(:, load_level_index*2);
         
-        % Put into output list as a true/false list.
-        holder = change_in_iterator ~= 0;
-        looping_output_list = setfield(looping_output_list, 'load', load_fields{i}, num2cell(holder));
-    
-    end 
+            % Find level of changing iterator. Include 0 at beginning to use for
+            % loading first dataset (so each entry corresponds to a change from the previous entry).
+            change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+            
+            % Put into output list as a true/false list.
+            holder = change_in_iterator ~= 0;
+            looping_output_list = setfield(looping_output_list, 'load', load_fields{i}, num2cell(holder));
+        
+        end 
+    else
+        load_fields = {};
+    end
     
     % Save locations
     % For each item in the things_to_save field, 
-    save_fields = fieldnames(loop_list.things_to_save);
-    for i = 1:numel(save_fields)
-        
-        % Get the level of saveing for that item. 
-        save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
-
-        % Get the level of saveing from loop_list
-        save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
-        
-        % Get column of looping_output_list that corresponds to the numeric iterations of
-        % the relevant looping level.
-        numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
+    if isfield(loop_list,'things_to_save' )
+        save_fields = fieldnames(loop_list.things_to_save);
+        for i = 1:numel(save_fields)
+            
+            % Get the level of saveing for that item. 
+            save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
     
-        % Find level of changing iterator. Include 0 at END to use for
-        % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
-        change_in_iterator = diff([cell2mat(numeric_iterations); 0]);
+            % Get the level of saveing from loop_list
+            save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
+            
+            % Get column of looping_output_list that corresponds to the numeric iterations of
+            % the relevant looping level.
+            numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
         
-        % Put into output list as a true/false list.
-        holder = change_in_iterator ~= 0;
-        looping_output_list = setfield(looping_output_list, 'save', save_fields{i}, num2cell(holder));
-    end 
-    
+            % Find level of changing iterator. Include 0 at END to use for
+            % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
+            change_in_iterator = diff([cell2mat(numeric_iterations); 0]);
+            
+            % Put into output list as a true/false list.
+            holder = change_in_iterator ~= 0;
+            looping_output_list = setfield(looping_output_list, 'save', save_fields{i}, num2cell(holder));
+        end 
+    else
+        save_fields = {}; 
+    end
     % Change to structure for easier (non-ordered indexing) use.
 
     % Make empty structure to put things in.
@@ -186,6 +193,17 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         
         % Get out all previous iterating values
         higher_values = looping_output_list(higheri, 1:2*(i-1));
+        
+        % If previous value entry is empty
+        if i > 1
+            last_value = higher_values{end-1};
+            if isempty(last_value)
+                % Put in padding.S
+                looping_output_list_2 = [looping_output_list_2; higher_values,cell(1,2)];
+                
+                continue
+            end 
+        end 
         if ~isempty(maxIterations_in)
             higher_max_iterations = maxIterations_in(higheri, :); 
         end
@@ -238,6 +256,17 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             
             % Skip if lower value is NaN.
             if isnan(lower_value)
+                % Put in padding.
+                looping_output_list_2 = [looping_output_list_2; higher_values, cell(1,2)];
+                 maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
+                continue
+            end
+
+            % Skip if lower value is empty.
+            if  isempty(lower_value)
+                 % Put in p adding.
+                looping_output_list_2 =  [looping_output_list_2; higher_values, cell(1,2)];
+                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
                 continue
             end
 
