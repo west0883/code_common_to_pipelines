@@ -19,7 +19,7 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
     if nargin < 3
         axis_for_drawing = gca;
     end
-    
+
     % Apply any existing masks to image_to_mask
     indices_of_mask=[];
     
@@ -58,7 +58,7 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
 
         % Run function "PolyDraw" on the image with previous masks; will 
         % output the coordinates of the ROI drawn
-        ROI1=PolyDraw(axis_for_drawing); 
+        ROI1=PolyDraw(axis_for_drawing, 1); 
         
         % Make a mask of the ROI drawn 
         mask1=flipud(poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2)));    
