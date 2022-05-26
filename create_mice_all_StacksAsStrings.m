@@ -210,9 +210,9 @@ for mousei = 1:numel(mouse_indices)
         stacks = str2num(Recordingslist.SpontaneousStackNumbers{day_indices(dayi)});
         if ~isempty(stacks)
             % Convert to a cell array of strings
-            mice_all(mousei).days(dayi).stacks = cell(numel(stacks),1); 
+            mice_all(mousei).days(dayi).spontaneous = cell(numel(stacks),1); 
             for stacki = 1:numel(stacks)
-                mice_all(mousei).days(dayi).stacks{stacki} = sprintf(['%0' num2str(parameters.digitNumber) 'd'], stacks(stacki)); 
+                mice_all(mousei).days(dayi).spontaneous{stacki} = sprintf(['%0' num2str(parameters.digitNumber) 'd'], stacks(stacki)); 
             end
         else 
             mice_all(mousei).days(dayi).spontaneous = {NaN};
