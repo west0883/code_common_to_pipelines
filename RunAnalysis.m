@@ -37,6 +37,9 @@ function [] = RunAnalysis(functions, parameters)
     % while loop so you can have functions skip iterations if needed).
     while itemi <= size(looping_output_list, 1)
 
+        % Make a default abort flag, which allows continuing to next item
+        abort = false; 
+
         % *** Loading ***
         
         % Get this list of loading and saving string-creating parameters.keywords and
@@ -93,10 +96,38 @@ function [] = RunAnalysis(functions, parameters)
                     % Assign to the specific name in parameters structure
                     parameters = setfield(parameters, load_fields{loadi}, getfield(variable, variable_string));
                 else
-                    % If no file, report (sometimes we want this).
-                    disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
+                    % If the user said to abort this item if there was no existing file
+                    % (default is to just give the message)
+                    if isfield(parameters, 'load_abort_flag') && parameters.load_abort_flag 
+                        
+                        % Say to abort this item and continue to next item
+                        abort = true; 
+                        disp(['Aborting analysis: No file for ' load_fields{loadi} ' found at ' input_dir filename ]);
+                        
+                        % Break out of loading loop
+                        break 
+                    else
+                        % If no file, report (sometimes we want this).
+                        disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
+                    end
                 end
             end 
+        end
+        
+        % If a load abort flag was given, skip to next item
+        if abort 
+           % Go to the next item i value where there's loading for the
+           % failed load field
+           eval(['holder =  [looping_output_list(itemi + 1:end).' load_fields{loadi} '_load];']);
+           
+           % If there's no next one, finish the loop 
+           if isempty (find(holder, 1))
+              break
+           else
+               % If there is a next one, make itemi equal that.
+               itemi = itemi + find(holder, 1);
+           end
+           continue 
         end
         
         % Create continue flags for each level of iterator, so functions
