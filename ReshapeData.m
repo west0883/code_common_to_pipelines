@@ -16,10 +16,14 @@ function [parameters] = ReshapeData(parameters)
             end
         disp(message); 
     end
-
+    
+    % Put in reshaping directions to make this as flexible as possible.
+    toReshape_string = CreateStrings(parameters.toReshape, parameters.keywords, parameters.values);
+    eval(['toReshape = ' toReshape_string ';']);
+    
     dimensions_string = CreateStrings(parameters.reshapeDims, parameters.keywords, parameters.values);
     eval(['dimensions = ' dimensions_string ';']);
     
-    parameters.data_reshaped = reshape(parameters.data, dimensions{:});
+    parameters.data_reshaped = reshape(toReshape, dimensions{:});
 
 end 
