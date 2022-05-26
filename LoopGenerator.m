@@ -68,6 +68,32 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
         looping_output_list.iterators = looping_output_list_2;
             
     end
+    
+    % ** Deal with empty entries.**
+
+    % Make a holder of just the numeric iterators for easier calculations
+    holder = NaN(size(looping_output_list.iterators,1), size(loop_list.iterators,1));
+    for iteratori = 1:size(loop_list.iterators,1)
+
+        holder_sub = [looping_output_list.iterators{:,iteratori *2}];
+        holder(:, iteratori) = holder_sub;
+        
+    end     
+    % If not removing empties,
+    if isfield(loop_list, 'removeEmptyIterations') && ~parameters.removeEmptyIterations
+        
+        % Keep only unique entries (may not be necessary if LoopGenerator
+        % worked correctly
+        [~, ia, ~] = unique(holder, 'rows','stable');
+        looping_output_list.iterators = looping_output_list.iterators(ia,:);
+    
+    % If removing empties (default)
+    else
+        % Find all empty positions, remove those rows.
+        [r, ~] = find(isnan(holder));
+        looping_output_list.iterators(r,:) = []; 
+
+    end
    
     % Deal with "load" and "save" at the very end-->insert them
     % based on changes in the relevant iterator value in loop_list. (when

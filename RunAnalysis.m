@@ -42,33 +42,6 @@ function [] = RunAnalysis(functions, parameters)
     % Generate list of things to loop through.
     [looping_output_list, maxIterations] = LoopGenerator(parameters.loop_list, parameters.loop_variables);
    
-    % ** Deal with empty entries.**
-    
-    % Concatenate the entries of each iterator into a cell array.
-    holder = NaN(size(looping_output_list,1), size(parameters.loop_list.iterators,1));
-    for iteratori = 1:size(parameters.loop_list.iterators,1)
-
-        eval(['holder_sub = [looping_output_list.' parameters.loop_list.iterators{iteratori,3} '];']);
-        holder(:, iteratori) = holder_sub;
-        
-    end     
-
-    % If not removing empties,
-    if isfield(parameters, 'removeEmptyIterations') && ~parameters.removeEmptyIterations
-        
-        % Keep only unique entries (may not be necessary if LoopGenerator
-        % worked correctly
-        [~, ia, ~] = unique(holder, 'rows','stable');
-        looping_output_list = looping_output_list(ia);
-    
-    % If removing empties (default)
-    else
-        % Find all empty positions, remove those rows.
-        [r, ~] = find(isnan(holder));
-        looping_output_list(r) = []; 
-
-    end
-
     % Initialize iterator for looping through looping_output_list
     itemi = 1; 
 
@@ -169,7 +142,8 @@ function [] = RunAnalysis(functions, parameters)
         % If a load abort flag was given, skip to next item
         if abort 
            % Go to the next item i value where there's loading for the
-           % failed load field
+           % failed load field. Loadi is whatever it was when the load look
+           % broke.
            eval(['holder =  [looping_output_list(itemi + 1:end).' load_fields{loadi} '_load];']);
            
            % If there's no next one, finish the loop 
