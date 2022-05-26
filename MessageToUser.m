@@ -16,9 +16,7 @@ function [] = MessageToUser(message, parameters)
     % If there's a "values" field from RunAnalysis, print updating message
     % for user. 
     if isfield(parameters, 'values')
-        for dispi = 1:numel(parameters.values)/2
-           message = [message ', ' parameters.values{dispi}];
-        end
-        disp(message); 
+        holder = strjoin(parameters.values(1:numel(parameters.values)/2), ', ');
+        disp([message holder]); 
     end
 end
