@@ -184,26 +184,25 @@ function [] = RunAnalysis(functions, parameters)
         % load level. 
         for loadi = 1:numel(load_fields)        
             
-            % Figure out if that item was loaded this iteration.
-           % load_flag = getfield(looping_output_list, {itemi}, [load_fields{loadi} '_load']);
-            % Only if the item was loaded & this load field  of variable_in isn't empty.
-            if  ~isempty(variable_in{loadi}) % load_flag &&
-                % Skip if there was a special load function because retrieved
-                % value was already defiened. 
-                eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
-    
-                % If this doesn't need to be loaded in specially 
-                if ~isfield(this_load_item, 'load_function')  
-                    
+            % If this doesn't need to be loaded in specially 
+            if ~isfield(this_load_item, 'load_function')  
+                
+                % Only if the item was loaded & this load field  of variable_in isn't empty.
+                if  ~isempty(variable_in{loadi}) % load_flag &&
+                    % Skip if there was a special load function because retrieved
+                    % value was already defiened. 
+                    eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';'])
+        
+                        
                     variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
                     variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                     
                     eval(['retrieved_value = variable_in{loadi}.' variable_string ';']); 
                 end 
-                
-                % Assign to the specific name in parameters structure 
-                parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
             end
+            % Assign to the specific name in parameters structure 
+            parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
+            
         end
 
         % Create continue flags for each level of iterator, so functions
