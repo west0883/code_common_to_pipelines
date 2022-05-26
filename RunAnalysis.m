@@ -93,7 +93,7 @@ function [] = RunAnalysis(functions, parameters)
              
                 input_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
-                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+                variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                 
                 % Load 
 
