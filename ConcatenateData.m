@@ -55,6 +55,12 @@ function [parameters] = ConcatenateData(parameters)
             parameters.concatenated_data = cell(size(parameters.data));
         end
 
+        % If a cell array with info about the origin of the entries doesn't
+        % exist yet, create it as empty cell array.
+        if ~isfield(parameters, 'concatenated_origin')
+            parameters.concatenated_origin = cell(size(parameters.data));
+        end
+
         % Could do cellfun, but I want to disp where the errors occur.
         for celli = 1:numel(parameters.data)
             if ~isempty(parameters.data{celli})
