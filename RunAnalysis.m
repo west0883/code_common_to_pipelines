@@ -86,6 +86,10 @@ function [] = RunAnalysis(functions, parameters)
             % If it should be loaded, start loading process
             if load_flag
              
+                % Clear any value still hanging out in this cell of
+                % variable_in
+                variable_in{loadi} = [];
+
                 % Get the filename & input variable name formatting cells
                 dir_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'dir');
                 filename_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'filename');
