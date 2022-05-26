@@ -123,6 +123,10 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
              
              % Save
              save([dir_out filename_output], variable_name_output, '-v7.3');
+
+             % Tell user when mouse is done saving, because the saving can
+             % take a bit longer and can be confusing.
+             disp('Done.')
         
          end 
     end
