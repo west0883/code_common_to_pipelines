@@ -15,28 +15,48 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
     dir_in = parameters.dir_in; 
     input_data_name = parameters.input_data_name;
     dir_exper = parameters.dir_exper; 
-    mice_all = parameters.mice_all; 
     digitNumber = parameters.digitNumber;
-    mouse = mice_all(mousei).name;
-    day = mice_all(mousei).days(dayi).name;
+    mouse = parameters.mice_all(mousei).name;
+    day = parameters.mice_all(mousei).days(dayi).name;
+    
+    % If user wants to use spontaneous stacks field, use those
+    % instead. 
+    if isfield(parameters, 'use_spontaneous_only') && parameters.use_spontaneous_only
+    
+        if isfield(parameters.mice_all(mousei).days(dayi), 'spontaneous')
+            parameters.mice_all(mousei).days(dayi).stacks = [parameters.mice_all(mousei).days(dayi).spontaneous];
+
+        % If no spontaneous field, make stacks NaN so you skip over this day.   
+        else 
+            parameters.mice_all(mousei).days(dayi).stacks = [NaN];
+        end
+    end
+    
+     % If user wants to use spontaneous stacks in addition to "stacks",
+     % combine them (but not if there's an nan in the spontaneous place).
+    if isfield(parameters, 'use_spontaneous_also') && parameters.use_spontaneous_also
+        if isfield(parameters.mice_all(mousei).days(dayi), 'spontaneous') && ~isnan(parameters.mice_all(mousei).days(dayi).spontaneous)
+            parameters.mice_all(mousei).days(dayi).stacks = [parameters.mice_all(mousei).days(dayi).stacks  parameters.mice_all(mousei).days(dayi).spontaneous];
+        end
+    end
     
     % Find if there's a stack list entry for that day. If not, set
     % to 'all' as a default. 
-    if isfield(mice_all(mousei).days(dayi), 'stacks')==0
-       mice_all(mousei).days(dayi).stacks='all'; 
-    elseif isempty(mice_all(mousei).days(dayi).stacks)==1
-       mice_all(mousei).days(dayi).stacks='all'; 
+    if isfield(parameters.mice_all(mousei).days(dayi), 'stacks')==0
+       parameters.mice_all(mousei).days(dayi).stacks='all'; 
+    elseif isempty(parameters.mice_all(mousei).days(dayi).stacks)==1
+       parameters.mice_all(mousei).days(dayi).stacks='all'; 
        
     % If stacks left as NaN, make it empty so the code skips over it.   
-    elseif isnan(mice_all(mousei).days(dayi).stacks) == 1
-       mice_all(mousei).days(dayi).stacks=[]; 
+    elseif isnan(parameters.mice_all(mousei).days(dayi).stacks) == 1
+       parameters.mice_all(mousei).days(dayi).stacks=[]; 
     end
     
     % Create a combined input name.
     combined_input_name = [dir_in input_data_name];
     
-    % Find the correct stack list entry of mice_all. 
-    useStacks=mice_all(mousei).days(dayi).stacks; 
+    % Find the correct stack list entry of parameters.mice_all. 
+    useStacks=parameters.mice_all(mousei).days(dayi).stacks; 
             
     % If stackList is a character string (to see if 'all')
     if ischar(useStacks)
