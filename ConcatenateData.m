@@ -39,7 +39,7 @@ function [parameters] = ConcatenateData(parameters)
         end
 
     % If parameters.data has more than one entry, in cell form 
-    else iscell(parameters.data) 
+    else 
        
         % If concatenated_data doesn't exist yet, create it as empty
         % cell array with same size as number of cells in data.
