@@ -45,6 +45,13 @@ function [] = RunAnalysis(functions, parameters)
     % Initialize iterator for looping through looping_output_list
     itemi = 1; 
 
+    % Make a variable holder.
+    load_fields = fieldnames(parameters.loop_list.things_to_load);
+    variable_in = cell(numel(load_fields),1);
+
+    save_fields = fieldnames(parameters.loop_list.things_to_save);
+    %variable_out = cell(numel(save_fields),1);
+
     % For each item in the list of information to loop through, (Use a
     % while loop so you can have functions skip iterations if needed).
     while itemi <= size(looping_output_list, 1)
@@ -70,8 +77,7 @@ function [] = RunAnalysis(functions, parameters)
 
         % *** Loading ***
         % Check each potential thing to load
-        load_fields = fieldnames(parameters.loop_list.things_to_load);
-        variable = cell(numel(load_fields),1);
+       
         for loadi = 1:numel(load_fields)
             
             % Figure out if that item should be loaded
@@ -111,17 +117,17 @@ function [] = RunAnalysis(functions, parameters)
                             % up to that point to load -- because that's how
                             % loading structures works in Matlab. 
                             index = find(variable_string == '.', 1);
-                            variable{loadi} = load([input_dir filename], variable_string(1:index-1)); 
+                            variable_in{loadi} = load([input_dir filename], variable_string(1:index-1)); 
                         elseif contains(variable_string, '{')
                             
                             % Find location of the period & only use the string
                             % up to that point to load -- because that's how
                             % loading structures works in Matlab. 
                             index = find(variable_string == '{', 1);
-                            variable{loadi} = load([input_dir filename], variable_string(1:index-1)); 
+                            variable_in{loadi} = load([input_dir filename], variable_string(1:index-1)); 
     
                         else
-                            variable{loadi}= load([input_dir filename], variable_string); 
+                            variable_in{loadi}= load([input_dir filename], variable_string); 
                            
                         end 
                     end
@@ -174,7 +180,7 @@ function [] = RunAnalysis(functions, parameters)
                 variable_cell = getfield(parameters.loop_list.things_to_load, load_fields{loadi}, 'variable');
                 variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                 
-                eval(['retrieved_value = variable{loadi}.' variable_string ';']); 
+                eval(['retrieved_value = variable_in{loadi}.' variable_string ';']); 
             end 
             
             % Assign to the specific name in parameters structure
@@ -213,9 +219,21 @@ function [] = RunAnalysis(functions, parameters)
         % *** Save  ***
         
         % Check each potential thing to save
-        save_fields = fieldnames(parameters.loop_list.things_to_save);
         for savei = 1:numel(save_fields)
             
+            % Get data out of parameters structure
+            variable_out =  getfield(parameters, save_fields{savei});
+
+            % Assign to variable strings now (so you can iterate between
+            % saves). 
+            variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
+            
+            % If not a structure or if user is okay saving as structure, save variable as usual
+            variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
+
+            % Convert to non-generic variable name
+            eval([variable_string ' = variable_out;']);
+
             % Find out if you save at this level.
             save_flag = getfield(looping_output_list, {itemi}, [save_fields{savei} '_save']);
             
@@ -226,8 +244,7 @@ function [] = RunAnalysis(functions, parameters)
                 % Create strings for all saving info
                 dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
                 filename_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'filename');
-                variable_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'variable');
-             
+               
                 output_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
                 
@@ -236,19 +253,17 @@ function [] = RunAnalysis(functions, parameters)
                     mkdir(output_dir);
                 end
          
-                % Get data out of parameters structure
-                variable =  getfield(parameters, save_fields{savei});
                 
                 % Check if variable is a figure handle. First have to make
                 % sure it's a graphics object handle specifically or else 
                 % Matlab freaks out. Making sure it's specifically a figure
                 % is good to be sure someone didn't make a typo.
-                if  strcmp(class(variable), 'matlab.ui.Figure')
+                if  strcmp(class(variable_out), 'matlab.ui.Figure')
                     % ~ismatrix(variable) && isgraphics(variable) 
                     % If it is a figure, save as figure. Uses the "compact"
                     % fig format, apparently makes it faster & smaller
                     % file.
-                    savefig(variable, [output_dir filename],'compact'); 
+                    savefig(variable_out, [output_dir filename],'compact'); 
 
                     % If user wants to save a fancy version (in addition to
                     % .fig type)
@@ -263,7 +278,7 @@ function [] = RunAnalysis(functions, parameters)
                         fig_type = getfield(fig_list_variable, 'saveas_type');
                         
                         % Save the fancy figure, too. 
-                        saveas(variable, filename, fig_type);
+                        saveas(variable_out, filename, fig_type);
 
                     end 
                 else
@@ -276,10 +291,10 @@ function [] = RunAnalysis(functions, parameters)
                     % this because isfield doesn't nest)
                     loop_list_variable = getfield(parameters.loop_list.things_to_save, save_fields{savei});
                        
-                    if isstruct(variable) && isfield(loop_list_variable, 'save_as_variables') && loop_list_variable.save_as_variable
+                    if isstruct(variable_out) && isfield(loop_list_variable, 'save_as_variables') && loop_list_variable.save_as_variable
 
                             % Save with structure-to-variables feature
-                            save([output_dir filename], '-struct', 'variable'); 
+                            save([output_dir filename], '-struct', 'variable_out'); 
                             
                             % To make it even more flexible... but I'll
                             % leave this for later.
@@ -290,12 +305,14 @@ function [] = RunAnalysis(functions, parameters)
 %                           %for i = 1:size(subvariables,1)
 %                           %      eval([subvariables{i,1} ' = ' subvariables{i,2} ';']);
 %                           % end     
-                    else
-                        % If not a structure or if user is okay saving as structure, save variable as usual
-                        variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
-
-                        % Convert to non-generic variable name
-                        eval([variable_string ' = variable;']);
+                    % If the variable name shows it's a cell array
+                    elseif contains(variable_string, '{')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '{', 1);
+                            variable_string = variable_string(1:index-1); 
                         
                         % Save
                         save([output_dir filename], variable_string, '-v7.3'); 
