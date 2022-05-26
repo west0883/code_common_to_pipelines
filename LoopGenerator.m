@@ -38,32 +38,54 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     end 
     
     % Initialize output variable as empty cell.
-    looping_output_list = {cell(1, 2)};
+    looping_output_list.iterators = {cell(1, 2)};
     
     % For each loop level the user asks for,
     for i = 1:size(loop_list.iterators,1)
         
         % Run the output variable recursively through the LoopSubGenerator
         % function. Needs to know where everything is, so also include other loop info variables. 
-        [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list.iterators, loop_variables);
-        looping_output_list = looping_output_list_2;
+        [looping_output_list_2] = LoopSubGenerator(i,looping_output_list.iterators, loop_list.iterators, loop_variables);
+        looping_output_list.iterators = looping_output_list_2;
             
     end
    
     % Potentially deal with "load" and "save" at the very end-->insert them
     % based on changes in the relevant iterator value in loop_list. (when
-    % the iterator value drops down)
+    % the iterator value changes)
 
-    % Code to work with from https://www.mathworks.com/matlabcentral/answers/322130-insert-an-array-into-another-array-in-a-specific-location
-%     iwant = zeros(1,length(B)+length(A)) ;
-%     % get positions to fill A at C
-%     pos = (C+1):(C+1):length(iwant) ;
-%     % other positions 
-%     idx = ones(1,length(iwant)) ;
-%     idx(pos) = 0 ;
-%     % fill 
-%     iwant(pos) = A ;
-%     iwant(logical(idx)) = B
+    % Load locations.
+    
+    % Get the level of loading from loop_list
+    load_level = find(strcmp(loop_list.iterators(:,1), loop_list.load_level));
+    
+    % Get column of looping_output_list that corresponds to the numeric iterations of
+    % the relevant looping level.
+    numeric_iterations = looping_output_list.iterators(:, load_level*2);
+
+    % Find level of changing iterator. Include 0 at beginning to use for
+    % loading first dataset (so each entry corresponds to a change from the previous entry).
+    change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+    
+    % Put into output list as a true/false list.
+    looping_output_list.load = change_in_iterator ~= 0;
+
+    % Save locations
+
+    % Get the level of saving from loop_list
+    save_level = find(strcmp(loop_list.iterators(:,1), loop_list.save_level));
+    
+    % Get column of looping_output_list that corresponds to the numeric iterations of
+    % the relevant looping level.
+    numeric_iterations = looping_output_list.iterators(:, save_level*2);
+
+    % Find level of changing iterator. Include 0 at beginning to use for
+    % loading first dataset (so each entry corresponds to a change from the previous entry).
+    change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+    
+    % Put into output list as a true/false list.
+    looping_output_list.save = change_in_iterator ~= 0;
+    
 end
 
 function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
