@@ -191,8 +191,11 @@ function [] = RunAnalysis(functions, parameters)
              
                 output_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
-             
-                mkdir(output_dir);
+                
+                % Make output directory, if it doesn't already exist.
+                if ~exist(output_dir, 'dir')
+                    mkdir(output_dir);
+                end
          
                 % Get data out of parameters structure
                 variable =  getfield(parameters, save_fields{savei});
