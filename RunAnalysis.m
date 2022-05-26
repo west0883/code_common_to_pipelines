@@ -69,14 +69,29 @@ function [] = RunAnalysis(functions, parameters)
              
                 input_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
-                variable = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
                 
                 % Load 
+
+                % Make sure file exists
                 if isfile([input_dir filename])
-                    loaded_variable = load([input_dir filename], variable); 
+
+                    % Check if "variable" has a period in it (and therefore
+                    % would become a structure).
+                    if contains(variable_string, '.')
+                        
+                        % Find location of the period & only use the string
+                        % up to that point to load -- because that's how
+                        % loading structures works in Matlab. 
+                        index = find(variable_string == '.', 1);
+                        variable = load([input_dir filename], variable_string(1:index-1)); 
+
+                    else
+                        variable = load([input_dir filename], variable_string); 
+                    end 
 
                     % Assign to the specific name in parameters structure
-                    parameters = setfield(parameters, load_fields{loadi}, getfield(loaded_variable, variable));
+                    parameters = setfield(parameters, load_fields{loadi}, getfield(variable, variable_string));
                 else
                     % If no file, report (sometimes we want this).
                     disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
@@ -132,8 +147,7 @@ function [] = RunAnalysis(functions, parameters)
              
                 output_dir = CreateStrings(dir_cell, parameters.keywords, parameters.values);
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
-                variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
-
+             
                 mkdir(output_dir);
          
                 % Get data out of parameters structure
@@ -168,12 +182,33 @@ function [] = RunAnalysis(functions, parameters)
                     end 
                 else
                     % If not a figure, save as variable. 
-
-                    % Convert to non-generic variable name
-                    eval([variable_string ' = variable;']);
                     
-                    % Save
-                    save([output_dir filename], variable_string, '-v7.3'); 
+                    % If variable is a structure, see if there's a field in loop list to save
+                        % everything as variables (default is as structure)
+                    if isstruct(variable) && isfield(parameters.loop_list.things_to_save, save_fields{savei}, 'save_as_variables') && getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'save_as_variables')
+
+                            % Save with structure-to-variables feature
+                            save([output_dir filename], '-struct', 'variable'); 
+                            
+                            % To make it even more flexible... but I'll
+                            % leave this for later.
+                            % Get out the list of variables they want to
+                            % save these as. Do it as just a cell array,
+                            % I'm tired. 
+%                           % subvariables  = getfield(list_variable);
+%                           %for i = 1:size(subvariables,1)
+%                           %      eval([subvariables{i,1} ' = ' subvariables{i,2} ';']);
+%                           % end     
+                    else
+                         % If not a structure or if user is okay saving as structure, save variable as usual
+                        variable_string = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
+
+                        % Convert to non-generic variable name
+                        eval([variable_string ' = variable;']);
+                        
+                        % Save
+                        save([output_dir filename], variable_string, '-v7.3'); 
+                    end 
                 end
             end
         end
