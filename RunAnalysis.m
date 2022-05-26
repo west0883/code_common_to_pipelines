@@ -205,15 +205,54 @@ function [] = RunAnalysis(functions, parameters)
 
         % *** Run functions chosen by user. *** 
         
+     
         % For each function, (run recursively on "parameters" structure).
         for functioni = 1:numel(functions)
             
+            % If this is the second or more function & there are things to hold onto, 
+            if functioni > 1 
+                
+                % If there are things to hold onto,
+                if isfield(parameters.loop_list, 'things_to_hold')
+                    holder_data = struct; 
+                    % For each of the items in this level of 'things_to_hold'
+                    for holdi = 1:numel(parameters.loop_list.things_to_hold(functioni - 1,:))
+                        
+                        hold_name = parameters.loop_list.things_to_hold{functioni - 1,holdi};
+                        holder_data =  setfield(holder_data, hold_name , getfield(parameters, hold_name));
+                       
+                    end 
+                end 
+                
+                % Rename data that's supposed to be renamed.
+                if isfield(parameters.loop_list, 'things_to_rename')
+                    for renamei = 1:size(parameters.loop_list.things_to_rename{functioni - 1},1)
+                        
+                        parameters = setfield(parameters, parameters.loop_list.things_to_rename{functioni - 1}{renamei, 2}, getfield(parameters, parameters.loop_list.things_to_rename{functioni - 1}{renamei, 1}));
+            
+                    end 
+                end
+            end 
+
             % Assign the function for this step
             F = functions{functioni};
 
             % Run the function
             parameters = F(parameters); 
 
+            % If this is the second or more function & there are things to hold onto, 
+            % put held data back into position where it was before this
+            % function. 
+            if functioni > 1 && isfield(parameters.loop_list, 'things_to_hold')
+                
+                % For each of the items in this level of 'things_to_hold'
+                for holdi = 1:numel(parameters.loop_list.things_to_hold(functioni - 1,:))
+                    
+                    hold_name = parameters.loop_list.things_to_hold{functioni -1,holdi};
+                    parameters =  setfield(parameters, hold_name , getfield(holder_data, hold_name));
+                   
+                end 
+            end 
         end
 
         % *** Save  ***
