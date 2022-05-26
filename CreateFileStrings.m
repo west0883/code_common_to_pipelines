@@ -18,9 +18,10 @@ function [file_string]=CreateFileStrings(file_format_cell, mouse, day, stack_num
     % Make a new cell array to manipulate. 
     file_format_output_cell=file_format_cell;
     
-    % See if there is an entry for mouse number
-     if any(contains(file_format_cell,'mouse number'))==1
-         mouse_index=find(contains(file_format_cell,'mouse number'));
+    % See if there is an entry for mouse number, find where it's located
+    mouse_index=find(strcmp(file_format_cell,'day'));
+     
+    if isempty(mouse_index)==0
          
          % If there is, make sure the mouse entry isn't empty 
          if isempty(mouse)==0
@@ -34,11 +35,13 @@ function [file_string]=CreateFileStrings(file_format_cell, mouse, day, stack_num
          end 
      end 
      
-    % See if there is an entry for day
-     if any(contains(file_format_cell,'day'))==1
-         day_index=find(contains(file_format_cell,'day'));
+    % See if there is an entry for day, find where it's located 
+     day_index=find(strcmp(file_format_cell,'day'));
+     
+     if isempty(day_index)==0
+
          
-         % If there is, make sure the mouse entry isn't empty 
+         % If there is, make sure the day entry isn't empty 
          if isempty(day)==0
              
              % Put the mouse number in place of the mouse number tag
@@ -50,9 +53,10 @@ function [file_string]=CreateFileStrings(file_format_cell, mouse, day, stack_num
          end 
      end 
      
-     % See if there is an entry for stack number
-     if any(contains(file_format_cell,'stack number'))==1
-         stack_index=find(contains(file_format_cell,'stack number'));
+     % See if there is an entry for stack number, find where it is 
+     stack_index=find(strcmp(file_format_cell,'stack number'));
+     
+     if isempty(stack_index)==0
          
          % If there is, make sure the stack number entry isn't empty 
          if isempty(stack_number)==0
