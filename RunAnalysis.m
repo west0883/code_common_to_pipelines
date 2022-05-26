@@ -398,6 +398,11 @@ function [] = RunAnalysis(functions, parameters)
                 % Once you've saved it, remove that variable from parameters 
                 % structure so called functions don't over write or add to it.
                 parameters = rmfield(parameters,save_fields{savei});
+
+                % Also clear the varible itself (relevant if you dealt with
+                % elements of an array or cell array).
+                clear(variable_string);
+                
             end
         end
         
