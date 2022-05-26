@@ -184,8 +184,13 @@ function [] = RunAnalysis(functions, parameters)
                     % If not a figure, save as variable. 
                     
                     % If variable is a structure, see if there's a field in loop list to save
-                        % everything as variables (default is as structure)
-                    if isstruct(variable) && isfield(parameters.loop_list.things_to_save, save_fields{savei}, 'save_as_variables') && getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'save_as_variables')
+                    % everything as variables (default is as structure)
+                    
+                    % Get the relevant sub-structure (have to do it like
+                    % this because isfield doesn't nest)
+                    loop_list_variable = getfield(parameters.loop_list.things_to_save, save_fields{savei});
+                       
+                    if isstruct(variable) && isfield(loop_list_variable, 'save_as_variables') && loop_list_variable.save_as_variable
 
                             % Save with structure-to-variables feature
                             save([output_dir filename], '-struct', 'variable'); 
