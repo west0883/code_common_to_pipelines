@@ -59,10 +59,15 @@ function [] = RunAnalysis(functions, parameters)
                 variable = CreateFileStrings(variable_cell, parameters.keywords, parameters.values);
                 
                 % Load 
-                loaded_variable = load([input_dir filename], variable); 
+                if isfile([input_dir filename])
+                    loaded_variable = load([input_dir filename], variable); 
 
-                % Assign to the specific name in parameters structure
-                parameters = setfield(parameters, load_fields{loadi}, getfield(loaded_variable, variable));
+                    % Assign to the specific name in parameters structure
+                    parameters = setfield(parameters, load_fields{loadi}, getfield(loaded_variable, variable));
+                else
+                    % If no file, report (sometimes we want this).
+                    disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
+                end
             end 
         end
 
@@ -102,13 +107,13 @@ function [] = RunAnalysis(functions, parameters)
                 mkdir(output_dir);
          
                 % Get data out of parameters structure
-                variable =  getfield(parameters, variable_string);
+                variable =  getfield(parameters, save_fields{savei});
     
                 % Convert to non-generic variable name
                 eval([variable_string ' = variable;']);
     
                 % Save
-                save([dir_out filename], variable, '-v7.3'); 
+                save([output_dir filename], variable_string, '-v7.3'); 
             end
         end
         
