@@ -11,7 +11,7 @@ function [masks, indices_of_mask] = DeleteMasks(masks, indices_of_mask, bRep)
 % bRep -- a representative image (pixels, pixels) that you used to draw 
 
      % Get a colormap for qualitative data.
-     mymap=[1 1 1 ; cbrewer('qual', 'Paired', size(masks,3))];
+     mymap=[1 1 1 ; cbrewer('qual', 'Paired', size(masks,3), 'linear')];
 
      % Make blank images for holding masks 
      holder=zeros(size(masks,1), size(masks,2));
