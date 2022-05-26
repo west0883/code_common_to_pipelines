@@ -144,24 +144,36 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             
             % Get the level of saveing for that item. 
             save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
-    
-            % Get the level of saveing from loop_list
-            save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
+
+            % If user said to only save at the end, make holder a list of
+            % zeros with a 1 at the end.
+            if strcmp(save_level, 'end')
+   
+                holder = zeros(size(looping_output_list.iterators,1), 1);
+                holder(end) = 1; 
+                
+            else
             
-            % Get column of looping_output_list that corresponds to the numeric iterations of
-            % the relevant looping level.
-            numeric_iterations = looping_output_list.iterators(:, 2:2:save_level_index*2);
-        
-            % Replace empty elements with NaN, to preserve list length.
-            ind = find(cellfun(@isempty, numeric_iterations));
-            numeric_iterations(ind) = {NaN};
-           
-            % Find level of changing iterator. Include 0 at END to use for
-            % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
-            change_in_iterator = diff([cell2mat(numeric_iterations); zeros(1,size(numeric_iterations,2))]);
+                % Get the level of saveing from loop_list
+                save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
+                
+                % Get column of looping_output_list that corresponds to the numeric iterations of
+                % the relevant looping level.
+                numeric_iterations = looping_output_list.iterators(:, 2:2:save_level_index*2);
             
-            % Put into output list as a true/false list.
-            holder = any(change_in_iterator, 2);
+                % Replace empty elements with NaN, to preserve list length.
+                ind = find(cellfun(@isempty, numeric_iterations));
+                numeric_iterations(ind) = {NaN};
+               
+                % Find level of changing iterator. Include 0 at END to use for
+                % saving at the end of each dataset (so each entry corresponds to a change from the previous entry).
+                change_in_iterator = diff([cell2mat(numeric_iterations); zeros(1,size(numeric_iterations,2))]);
+                
+                % Put into output list as a true/false list.
+                holder = any(change_in_iterator, 2);
+
+            end 
+
             looping_output_list = setfield(looping_output_list, 'save', save_fields{i}, num2cell(holder));
         end 
     else
