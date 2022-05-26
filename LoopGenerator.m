@@ -37,7 +37,7 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
        error('A non-empty field in loop list called "things_to_load" is required.');
     end 
     % save level field
-    if ~isfield(loop_list, 'save_level') || isempty(loop_list.save_level)
+    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_saves)
        error('A non-empty field in loop list called "save_level" is required.');
     end 
     
@@ -97,22 +97,29 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     end 
     
     % Save locations
+    % For each item in the things_to_save field, 
+    save_fields = fieldnames(loop_list.things_to_save);
+    for i = 1:numel(save_fields)
+        
+        % Get the level of saveing for that item. 
+        save_level = getfield(loop_list.things_to_save, save_fields{i}, 'save_level');
 
-    % Get the level of saving from loop_list
-    save_level = find(strcmp(loop_list.iterators(:,1), loop_list.save_level));
+        % Get the level of saveing from loop_list
+        save_level_index = find(strcmp(loop_list.iterators(:,1), save_level));
+        
+        % Get column of looping_output_list that corresponds to the numeric iterations of
+        % the relevant looping level.
+        numeric_iterations = looping_output_list.iterators(:, save_level_index*2);
     
-    % Get column of looping_output_list that corresponds to the numeric iterations of
-    % the relevant looping level.
-    numeric_iterations = looping_output_list.iterators(:, save_level*2);
-
-    % Find level of changing iterator. Include 0 at beginning to use for
-    % loading first dataset (so each entry corresponds to a change from the previous entry).
-    change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+        % Find level of changing iterator. Include 0 at beginning to use for
+        % saveing first dataset (so each entry corresponds to a change from the previous entry).
+        change_in_iterator = diff([0; cell2mat(numeric_iterations)]);
+        
+        % Put into output list as a true/false list.
+        holder = change_in_iterator ~= 0;
+        looping_output_list = setfield(looping_output_list, 'save', save_fields{i}, num2cell(holder));
+    end 
     
-    % Put into output list as a true/false list.
-     holder = change_in_iterator ~= 0;
-    looping_output_list.save = num2cell(holder);
-
     % Change to structure for easier (non-ordered indexing) use.
 
     % Make empty structure to put things in.
@@ -135,7 +142,15 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
             % Set the yes-or-no to the proper place in the output structure
             output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
         end 
-        output_structure(ii).save = looping_output_list.save{ii};
+
+        % Go through each thing to save
+        for savei = 1:numel(save_fields)
+            % Get the yes-or-no to save
+            save_flag = getfield(looping_output_list.save, save_fields{savei}, {ii});
+
+            % Set the yes-or-no to the proper place in the output structure
+            output_structure = setfield(output_structure, {ii}, [save_fields{savei} '_save'], cell2mat(save_flag));
+        end 
 
         % Now run for each iterator field. 
         for i = 1:numel(structure_names)
