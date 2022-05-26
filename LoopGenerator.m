@@ -108,6 +108,8 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
         structure_names = [structure_names; [loop_list.iterators{i, 1} '_name']; [loop_list.iterators{i,1}, '_iteration']];
     end
    
+    % Put together structure via a big eval of a string, because making
+    % structures is ridiculous.
     output_structure_eval_string = ['output_structure = struct(''load'', looping_output_list.load, ''save'', looping_output_list.save '];
     for i =  1:size(structure_names,1)
         output_structure_eval_string = [output_structure_eval_string ', ''' structure_names{i} ''', looping_output_list.iterators(:,' num2str(i) ')'];
