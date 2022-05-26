@@ -12,7 +12,7 @@
 function [stackList]=GetStackList(mousei, dayi, parameters)
     
     % Convert parameter names to something easier to use.
-    dir_dataset_name = parameters.dir_dataset_name; 
+    dir_in = parameters.dir_in; 
     input_data_name = parameters.input_data_name;
     dir_exper = parameters.dir_exper; 
     mice_all = parameters.mice_all; 
@@ -29,7 +29,7 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
     end
     
     % Create a combined input name.
-    combined_input_name = [dir_dataset_name input_data_name];
+    combined_input_name = [dir_in input_data_name];
     
     % Find the correct stack list entry of mice_all. 
     useStacks=mice_all(mousei).days(dayi).stacks; 
