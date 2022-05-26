@@ -19,7 +19,7 @@ function [file_string]=CreateFileStrings(file_format_cell, mouse, day, stack_num
     file_format_output_cell=file_format_cell;
     
     % See if there is an entry for mouse number, find where it's located
-    mouse_index=find(strcmp(file_format_cell,'day'));
+    mouse_index=find(strcmp(file_format_cell,'mouse number'));
      
     if isempty(mouse_index)==0
          
