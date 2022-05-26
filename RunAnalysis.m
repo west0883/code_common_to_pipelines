@@ -23,11 +23,11 @@ function [] = RunAnalysis(functions, parameters)
     % Because this is running analysis, a load and save field is required.
     % Give errors if those are not present.
     % load level field
-    if ~isfield(loop_list, 'things_to_load') || isempty(loop_list.things_to_load)
+    if ~isfield(parameters.loop_list, 'things_to_load') || isempty(parameters.loop_list.things_to_load)
        error('A non-empty field in loop list called "things_to_load" is required.');
     end 
     % save level field
-    if ~isfield(loop_list, 'things_to_save') || isempty(loop_list.things_to_save)
+    if ~isfield(parameters.loop_list, 'things_to_save') || isempty(parameters.loop_list.things_to_save)
        error('A non-empty field in loop list called "things_to_save" is required.');
     end 
 
