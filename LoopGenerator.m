@@ -166,9 +166,11 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         string_searches = [loop_list(1:i-1, 3) ];
         number_searches = looping_output_list(higheri, [2:2:end]);
         
-        % Create a string for "eval" evalutaion of lower value name.
+        % Create a string for the relevent field 
         lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
-        eval(['lower_values = {loop_variables.' lower_values_string '};']);
+
+        % Get the lower value
+        lower_values = {getfield(loop_variables, lower_values_string)};
         
         % If the list you want is a numeric array inside a cell array, get
         % it out and turn to a cell array.
