@@ -79,6 +79,9 @@ function [] = RunAnalysis(functions, parameters)
         % Make a default abort flag, which allows continuing to next item
         abort = false; 
 
+        % Make a default don't save flag
+        parameters.dont_save = false;
+
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
         % Keywords should be the names of each iterator, which are in the
@@ -117,24 +120,35 @@ function [] = RunAnalysis(functions, parameters)
                 % Make sure file exists
                 if isfile([input_dir filename])
 
-                    % Check if "variable" has a period in it (and therefore
-                    % would become a structure).
-                    if contains(variable_string, '.')
+                    % If there is a load function for this field, use that
+                    eval(['this_load_item = parameters.loop_list.things_to_load.' load_fields{loadi} ';']);
+                    
+                    if isfield(this_load_item, 'load_function')
                         
-                        % Find location of the period & only use the string
-                        % up to that point to load -- because that's how
-                        % loading structures works in Matlab. 
-                        index = find(variable_string == '.', 1);
-                        variable = load([input_dir filename], variable_string(1:index-1)); 
-                        retrieved_value = getfield(variable, variable_string(1:index -1), variable_string(index+1:end)); 
-
-                    else
-                        variable = load([input_dir filename], variable_string); 
-                        retrieved_value = getfield(variable, variable_string);
-                    end 
-
+                        load_function = this_load_item.load_function; 
+                        retrieved_value = load_function([input_dir filename]); 
+                       
+                    else 
+                        % Check if "variable" has a period in it (and therefore
+                        % would become a structure).
+                        if contains(variable_string, '.')
+                            
+                            % Find location of the period & only use the string
+                            % up to that point to load -- because that's how
+                            % loading structures works in Matlab. 
+                            index = find(variable_string == '.', 1);
+                            variable = load([input_dir filename], variable_string(1:index-1)); 
+                            retrieved_value = getfield(variable, variable_string(1:index -1), variable_string(index+1:end)); 
+    
+                        else
+                            variable = load([input_dir filename], variable_string); 
+                            retrieved_value = getfield(variable, variable_string);
+                        end 
+                    end
+                    
                     % Assign to the specific name in parameters structure
                     parameters = setfield(parameters, load_fields{loadi}, retrieved_value);
+   
                 else
                     % If the user said to abort this item if there was no existing file
                     % (default is to just give the message)
@@ -150,8 +164,8 @@ function [] = RunAnalysis(functions, parameters)
                         % If no file, report (sometimes we want this).
                         disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
                     end
-                end
-            end 
+                end 
+            end
         end
         
         % If a load abort flag was given, skip to next item
@@ -209,7 +223,7 @@ function [] = RunAnalysis(functions, parameters)
             
             % If you save at this level, or if the called function sends
             % out the "save_now flag", 
-            if save_flag || (isfield(parameters, 'save_now') && parameters.save_now)
+            if ~parameters.dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
     
                 % Create strings for all saving info
                 dir_cell = getfield(parameters.loop_list.things_to_save, save_fields{savei}, 'dir');
