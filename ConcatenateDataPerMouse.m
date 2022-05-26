@@ -15,7 +15,7 @@ function [] = ConcatenateDataPerMouse(periods_all, parameters)
     
     % Give parameters easier names. 
     dir_input_base = parameters.dir_input_base;
-    input_file_name = parameters.input_file_name;
+    parameters.input_data_name = parameters.input_file_name;
     input_variable_name = parameters.input_variable_name;
     dir_out_base = parameters.dir_out_base;
     concatDim = parameters.concatDim;
