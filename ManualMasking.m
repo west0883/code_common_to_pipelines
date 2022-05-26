@@ -8,11 +8,12 @@
 % Inputs:
 % existing_masks-- 
 % image_to_mask-- 
+% iterator_name -- just for asking user if they're done.
 
 % Outputs: 
 % masks-- a 
 
-function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks)
+function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, axis_for_drawing)
        
     % Apply any existing masks to image_to_mask
     indices_of_mask=[];
@@ -29,12 +30,17 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks)
         image_to_mask(indices_of_mask)=NaN;
     end 
 
-    % Display image_to_mask. Displays masks as black
-    mymap=[0 0 0; parula(512)];
-    figure; imagesc(image_to_mask); colormap(mymap);
+    % Set the axes to draw on as the passed axes handle.
+    axes(axis_for_drawing); 
 
+    % Display image_to_mask. Displays masks as gray (not black, can't see
+    % crosshairs).
+    mymap=[0.5 0.5 0.5; parula(512)];
+    imagesc(image_to_mask); colormap(axis_for_drawing, mymap);
+    xticks([]); yticks([]); axis square; 
+    
     % Ask user if they want to add a mask
-    user_answer1= inputdlg('Do you want to draw additional masks on this mouse? 1=Y, 0=N'); 
+    user_answer1= inputdlg(['Do you want to draw additional masks on this image? 1=Y, 0=N']); 
 
     %Convert the user's answer into a value
     answer1=str2num(user_answer1{1});
@@ -50,9 +56,7 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks)
         ROI1=PolyDraw; 
         
         % Make a mask of the ROI drawn 
-        mask1=flipud(poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2))); 
-        % Close the figure that was being drawn on
-        close all;   
+        mask1=flipud(poly2mask(ROI1(1,:),ROI1(2,:),size(image_to_mask,1), size(image_to_mask,2)));    
 
         % Add the new mask to the matrix of masks that have been drawn so far
         masks=cat(3, masks, mask1); 
@@ -66,11 +70,15 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks)
         % Add these new indices to the list of mask indices
         indices_of_mask=[indices_of_mask; indices_new];
         
+        % Set the axes to draw on as the passed axes handle (again).
+        axes(axis_for_drawing);
+
         % Draw the representative image with the new masks on it
-        figure; imagesc(image_to_mask); colormap(mymap); 
+        imagesc(image_to_mask); colormap(axis_for_drawing, mymap); 
+        xticks([]); yticks([]); axis square;
 
         % Repeat
-        user_answer1= inputdlg('Do you want to draw additional masks on this mouse? 1=Y, 0=N'); 
+        user_answer1= inputdlg(['Do you want to draw additional masks on this image? 1=Y, 0=N']); 
         answer1=str2num(user_answer1{1});
     end
 
