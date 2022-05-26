@@ -14,7 +14,12 @@
 % masks-- a 
 
 function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, axis_for_drawing)
-       
+    
+    % If no input for axes, set default axes to current axes.
+    if nargin < 3
+        axis_for_drawing = gca;
+    end
+    
     % Apply any existing masks to image_to_mask
     indices_of_mask=[];
     
