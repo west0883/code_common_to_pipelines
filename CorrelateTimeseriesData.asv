@@ -46,19 +46,16 @@ function [] = CorrelateTimeseriesData(periods_all, parameters)
             % C is a holder of as many ':' indices as we need.
             C_source1 = repmat({':'},1, ndims(Timeseries));
             C_source2 = repmat({':'},1, ndims(Timeseries));
-        
+
             % If no segment ranges, 
             if isempty(Timeseries)
                 % Do nothing. Continue to next period
                 continue
             else
-                % Number of sources (for convenience)
-                num_sources = size(Timeseries, parameters.corrDim);
-
                 % Make a holding matrix that will hold all the
                 % correlations. Is set as size source number x source
                 % number x instance number.
-                Corrs = NaN (num_sources, num_sources, size(Timeseries, parameters.instancesDim));
+                Corrs = NaN (size(Timeseries, parameters.corrDim), size(Timeseries, parameters.corrDim), size(Timeseries, parameters.instancesDim));
                  
                 % Try rearranging all Timeseries data here to try the
                 % parfor loop on instancei. 
@@ -71,17 +68,17 @@ function [] = CorrelateTimeseriesData(periods_all, parameters)
                     C_source1(parameters.instancesDim) = {instancei};
                     C_source2(parameters.instancesDim) = {instancei};
 
-                    timeseries_list = NaN(num_sources^2, size(Timeseries,parameters.timeDim), 2);
+                    timeseries_list = NaN(size(Timeseries, parameters.corrDim)^2, size(Timeseries,parameters.timeDim), 2);
 
                     % And for each timeseries to be correlated
-                    for source1i=1:num_sources
+                    for source1i=1:size(Timeseries, parameters.corrDim)
                         C_source1(parameters.corrDim) = {source1i};
 
-                        for source2i=1:num_sources
+                        for source2i=1:size(Timeseries, parameters.corrDim)
                             C_source2(parameters.corrDim) = {source2i};
                             
-                            timeseries_list((source1i*num_sources-1)+source2i,:,1) = Timeseries(C_source1{:});
-                            timeseries_list((source1i*num_sources-1)+source2i,:,2) = Timeseries(C_source2{:});
+                            timeseries_list((source1i*size(Timeseries,parameters.corrDim)-1)+source2i,:,1) = Timeseries(C_source1{:});
+                            timeseries_list((source1i*size(Timeseries,parameters.corrDim)-1)+source2i,:,2) = Timeseries(C_source2{:});
                             
                         end 
                     end
@@ -92,7 +89,7 @@ function [] = CorrelateTimeseriesData(periods_all, parameters)
                     parfor i = 1:size(timeseries_list,1)
                        
                         % Perform correlation.
-                        R=corrcoef(timeseries_list(i,:,1), timeseries_list(i,:,2)); 
+                        R=corrcoef(timeseries_list(i,:,1), timeseries2); 
                         corrs_hold(i) = R(1,2);
 
                         % Store correlation coefficient in Corrs
@@ -100,7 +97,7 @@ function [] = CorrelateTimeseriesData(periods_all, parameters)
                        
                     end 
 
-                     Corrs(:,:,instancei)=reshape(corrs_hold, [num_sources num_sources])';
+                     Corrs(:,:,instancei)=reshape(corrs_hold, [])
 
                 end 
             end 
