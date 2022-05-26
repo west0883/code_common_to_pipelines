@@ -15,5 +15,5 @@ function [parameters]=FillMasks_forRunAnalysis(parameters)
  % mask)
    
    parameters.data_matrix_filled = FillMasks(parameters.data, parameters.indices_of_mask...
-       , parameters.pixels(2), parameters.pixels(1));git 
+       , parameters.pixels(2), parameters.pixels(1)); 
 end 
