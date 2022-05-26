@@ -40,16 +40,16 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
     xticks([]); yticks([]); axis square; 
     
     % Ask user if they want to add a mask
-    user_answer1= inputdlg(['Do you want to draw additional masks on this image? 1=Y, 0=N']); 
+    user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no']); 
 
     %Convert the user's answer into a value
-    answer1=str2num(user_answer1{1});
+    answer1=user_answer1{1};
 
     % Include existing_masks in the list of masks you're making 
     masks=existing_masks; 
 
     % If the user said yes,
-    while answer1==1      
+    while strcmp(answer1, 'y')      
 
         % Run function "PolyDraw" on the image with previous masks; will 
         % output the coordinates of the ROI drawn
@@ -78,8 +78,8 @@ function[masks, indices_of_mask]=ManualMasking(image_to_mask, existing_masks, ax
         xticks([]); yticks([]); axis square;
 
         % Repeat
-        user_answer1= inputdlg(['Do you want to draw additional masks on this image? 1=Y, 0=N']); 
-        answer1=str2num(user_answer1{1});
+        user_answer1= inputdlg(['Do you want to draw additional masks on this image? y = yes, n = no']); 
+        answer1=user_answer1{1};
     end
 
     % leaves while loop if user answers anything other than "1"
