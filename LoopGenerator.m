@@ -25,7 +25,7 @@
 % where the list of data for each can be found (Ex above would be
 % loop_variables.mice_all);
 
-function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
+function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_variables)
     
     % Make sure all fields of loop_list are present.
     % iterators field
@@ -53,15 +53,26 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     end
     disp(display_string);
 
+    % Grab the number of digits user wants to use for iterating numbers in
+    % filenames (like with stacks). Otherwise, default to 3 digits.
+    if isfield(loop_list, 'digitNumber')
+       digitNumber = loop_list.digitNumber;
+    else 
+       digitNumber = 3; 
+    end
+
     % Initialize output variable as empty cell.
     looping_output_list.iterators = {cell(1, 2)};
     
+    % Initialize variable that holds max iterator values;
+    maxIterations = []; 
+
     % For each loop level the user asks for,
     for i = 1:size(loop_list.iterators,1)
         
         % Run the output variable recursively through the LoopSubGenerator
         % function. Needs to know where everything is, so also include other loop info variables. 
-        [looping_output_list_2] = LoopSubGenerator(i,looping_output_list.iterators, loop_list.iterators, loop_variables);
+        [looping_output_list_2, maxIterations] = LoopSubGenerator(i,looping_output_list.iterators, loop_list.iterators, loop_variables, maxIterations, digitNumber);
         looping_output_list.iterators = looping_output_list_2;
             
     end
@@ -163,10 +174,11 @@ function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
    
 end
 
-function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
+function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables, maxIterations_in, digitNumber)
 
     % Initialize recursion version of output list as empty cell.
     looping_output_list_2 = {}; 
+    maxIterations_out = []; 
 
     % For each entry of the iterator at the previous (higher) level (skip
     % first because it's empty)
@@ -174,7 +186,10 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         
         % Get out all previous iterating values
         higher_values = looping_output_list(higheri, 1:2*(i-1));
-      
+        if ~isempty(maxIterations_in)
+            higher_max_iterations = maxIterations_in(higheri, :); 
+        end
+
         % Get the current values based on higher_values and where current
         % value is stored. Make a list of keys-values for creating the
         % right strings.
@@ -188,13 +203,33 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
         % If the list you want is a numeric array inside a cell array, get
         % it out, turn into strings, then turn to a cell array.
         if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1}) && isnumeric(lower_values{1})
-            lower_values = num2str(lower_values{1}(:));
-            lower_values = cellstr(lower_values);
+            % Turn into strings with desired digit numbers. 
+            
+            % Convert the input digit number to a character for easier use with
+            % sprintf. 
+            digitChar=num2str(digitNumber);
+
+            % Initiate holdList, an empty cell array.
+            holdList=cell(numel(lower_values{1}(:)) ,1); 
+
+            % Make a for loop for each lower value entry, because sprintf doesn't have a
+            % convenient way to separate outputs. 
+            for numi=1:numel(lower_values{1}(:)) 
+                holdList{numi}=sprintf(['%0' digitChar 'd'], lower_values{1}(numi)); 
+            end
+
+            lower_values = holdList; 
+
+
+%             lower_values = num2str(lower_values{1}(:));
+%             lower_values = cellstr(lower_values);
            
         % Or remove the extra nesting step.
         elseif max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && iscell(lower_values{1})
             lower_values = lower_values{1,1};
         end     
+
+        max_iteration = numel(lower_values);
 
         % Loop through each current value
         for loweri = 1:numel(lower_values)
@@ -211,15 +246,18 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
             % If the very first instance, overwrite the first empty entry.
             if i == 1 && higheri ==1 && loweri == 1
                 looping_output_list_2(1,:) = [{lower_value}, {loweri}];
-            
+                maxIterations_out = max_iteration;
+
             % If the very first iteration level, don't need to include any higher
             % level values.
             elseif i == 1 && higheri ==1
                 looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
-            
+                maxIterations_out = [maxIterations_out; max_iteration];
+
             % Concatenate new information along with information about higher level values.    
             else
                 looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
+                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
             end
 
         end
