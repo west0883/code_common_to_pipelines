@@ -26,6 +26,10 @@ function [stackList]=GetStackList(mousei, dayi, parameters)
        mice_all(mousei).days(dayi).stacks='all'; 
     elseif isempty(mice_all(mousei).days(dayi).stacks)==1
        mice_all(mousei).days(dayi).stacks='all'; 
+       
+    % If stacks left as NaN, make it empty so the code skips over it.   
+    elseif isnan(mice_all(mousei).days(dayi).stacks) == 1
+       mice_all(mousei).days(dayi).stacks=[]; 
     end
     
     % Create a combined input name.
