@@ -102,7 +102,7 @@ function [looping_output_list_2, loop_iteration_counts_2] = LoopSubGenerator(i,l
         string_searches = [loop_list(1:i, 4) ];
         number_searches = looping_output_list(higheri, [2:2:end]);
 
-        lower_values_string = CreateFileStrings(loop_list{i,3}, string_searches, number_searches ); 
+        lower_values_string = CreateStrings(loop_list{i,3}, string_searches, number_searches ); 
         eval(['lower_values = {' lower_values_string '};']);
 
         % Loop through each current value
