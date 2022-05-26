@@ -10,11 +10,12 @@
 % with information about each level to loop, where list of data for each
 % loop can be found, what iterator to use (important for finding data the next level down)
 % and when to load or save data in relation to those loops. 
-% Ex. {'iterator', 'mouse', 'mice_all(:).name',' mousei'; 
-%      'iterator','day', 'mice_all(mousei).days(:).name'; 'dayi';
-%      'iterator', 'stack', 'mice_all(mousei).days(dayi).stacks', 'stacki';
-%      'load', [], [], []; 
-%      'save', [], [], []};
+% Ex. loop_list.iterators = {
+%      'mouse', 'mice_all(:).name',' mousei'; 
+%      'day', 'mice_all(mousei).days(:).name'; 'dayi';
+%      'stack', 'mice_all(mousei).days(dayi).stacks', 'stacki';
+%     loop_list.load_level = 'stack';
+%     loop_list.save_level = 'stack';
 
 % loop_variables -- a structure of the variables
 % where the list of data for each can be found (Ex above would be
@@ -22,43 +23,31 @@
 
 function [looping_output_list] = LoopGenerator(loop_list, loop_variables)
     
-    % Make sure both a "load" and "save" field are included.
-    if ~isempty(find(contains(loop_list(:,1),'load'),1)) || ~isempty(find(contains(loop_list(:,1),'save'), 1)) 
-        error('A ''load'' and ''save'' condition are required in the first position of one of the rows of the loop matrix.');
-    end
+    % Make sure all fields of loop_list are present.
+    % iterators field
+    if ~isfield(loop_list, 'iterators') || isempty(loop_list.iterators)
+       error('A non-empty field in loop list called "iterators" is required.');
+    end 
+    % load level field
+    if ~isfield(loop_list, 'load_level') || isempty(loop_list.load_level)
+       error('A non-empty field in loop list called "load_level" is required.');
+    end 
+    % save level field
+    if ~isfield(loop_list, 'save_level') || isempty(loop_list.save_level)
+       error('A non-empty field in loop list called "save_level" is required.');
+    end 
     
     % Initialize output variable as empty cell.
-    looping_output_list = {}; %cell(1, size(loop_list,2));
-
-    % Make a cell array to count how many iterations are at each level? (might
-    % vary per mouse or whatever)
-   % loop_iteration_counts = cell(1, size(loop_list,2));
+    looping_output_list = {cell(1, 2)};
     
     % For each loop level the user asks for,
-    for i = 1:size(loop_list,1)
+    for i = 1:size(loop_list.iterators,1)
         
-        % Check first entry to know what to do.
-        instruction = loop_list{i,1};
-
-        switch instruction
-            case 'iterator'
-                 % Run the output variable recursively through the LoopSubGenerator
-                 % function. Needs to know where everything is, so also include other loop info variables. 
-                 [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables);
-                  looping_output_list = looping_output_list_2;
-            case 'load'
-                 % Continue (deal with this inside LoopSubGenerator or at end).
-                 %loop_iteration_counts = [loop_iteration_counts; {'load', 'load', 'load', 'load'}];
-                 continue
-           
-            case 'save'
-                % Continue (deal with this inside LoopSubGenerator or at end).
-                %loop_iteration_counts = [loop_iteration_counts; {'save', 'save', 'save', 'save'}];
-                continue 
-
-            otherwise % Give catch error message.
-                error(['Unrecognized instruction tag in position ' num2str(i) ', 1. Must be ''iterator'', ''load'', or ''save''.']);
-        end
+        % Run the output variable recursively through the LoopSubGenerator
+        % function. Needs to know where everything is, so also include other loop info variables. 
+        [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list.iterators, loop_variables);
+        looping_output_list = looping_output_list_2;
+            
     end
    
     % Potentially deal with "load" and "save" at the very end-->insert them
@@ -79,11 +68,8 @@ end
 
 function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_list, loop_variables)
     
-    looping_output_list_2 = {}; %cell(1, 2);
-
-    if i == 1
-        looping_output_list =  {cell(1,2)};
-    end 
+    % Initialize recursion version of output list as empty cell.
+    looping_output_list_2 = {}; 
 
     % For each entry of the iterator at the previous (higher) level (skip
     % first because it's empty)
@@ -94,10 +80,10 @@ function [looping_output_list_2] = LoopSubGenerator(i,looping_output_list, loop_
       
         % Get the current values based on higher_values and where current
         % value is stored
-        string_searches = [loop_list(1:i-1, 4) ];
+        string_searches = [loop_list(1:i-1, 3) ];
         number_searches = looping_output_list(higheri, [2:2:end]);
 
-        lower_values_string = CreateStrings(loop_list{i,3}, string_searches, number_searches ); 
+        lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
         eval(['lower_values = {' lower_values_string '};']);
         
         % If the list you want is a numeric array inside a cell array, get
