@@ -25,7 +25,8 @@ function [parameters] = SegmentTimeseriesData(parameters)
 
         else 
             if ~isempty(parameters.time_ranges)
-                parameters.segmented_timeseries = SubSegmenter(parameters.time_ranges, parameters.timeseries, parameters.segmentDim, parameters.concatDim); 
+                celli = [];
+                parameters.segmented_timeseries = SubSegmenter(parameters.time_ranges, parameters.timeseries, parameters.segmentDim, parameters.concatDim, celli); 
             else
                 parameters.segmented_timeseries = [];
             end
