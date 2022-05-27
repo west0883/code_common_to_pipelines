@@ -20,7 +20,21 @@ function [parameters] = ConcatenateData(parameters)
     MessageToUser('Concatenating ', parameters);
 
     origin = parameters.values; 
-    
+
+    % If the user gave a concatenation level value field
+    if isfield(parameters,'concatenation_level')
+
+        % Get the current iterator value for that level
+        iterator_level = find(strcmp(parameters.loop_list.iterators(:,1), parameters.concatenation_level));
+        current_iterator = parameters.values{numel(parameters.values)/2 + iterator_level};
+
+        % If the current iterator is 1, that means you're starting a new
+        % concatenation, clear any previously concatenated data.
+        if current_iterator == 1 && isfield(parameters, 'concatenated_data')
+            parameters = rmfield(parameters, 'concatenated_data'); 
+        end 
+    end 
+   
     % If parameters.data has only one entry (no cells/not a cell array), or if user said to
     % concatenated across (instead of within) cells. 
     if ~iscell(parameters.data) || (isfield(parameters, 'concatenate_across_cells') && parameters.concatenate_across_cells)
