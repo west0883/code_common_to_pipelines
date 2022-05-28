@@ -10,8 +10,5 @@ function [parameters] = PermuteData(parameters)
     MessageToUser('Permuting ', parameters); 
     
     % Permute
-    data_permuted = permute(parameters.data, parameters.DimOrder); 
-
-    % Put into output structure.
-    parameters.data_permuted = data_permuted;
+    parameters.data_permuted = permute(parameters.data, parameters.DimOrder); 
 end 
