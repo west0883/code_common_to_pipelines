@@ -69,7 +69,7 @@ function [parameters] = CorrelateTimeseriesData(parameters)
                 end
 
                 % Correlate
-                [corrs] = SubCorrelater(data);
+                [corrs] = corrcoeff(data);
 
                 % Put into a holding matrix of all corrs. 
                 correlations(dimensions_extraction{:}) = corrs;
@@ -88,21 +88,8 @@ function [parameters] = CorrelateTimeseriesData(parameters)
              data = permute(parameters.data, [parameters.sourceDim parameters.timeDim]); 
 
              % Correlate
-             parameters.correlation = SubCorrelater(data);
+             parameters.correlation = corrcoeff(data);
 
         end 
     end
-end 
-
-
-function [corrs] = SubCorrelater(data)
-
-        % zscore data for calculating correlation with matrix math
-        [data_zscored] = zscore(data);
-       
-        % Pearson correlation with matrix math: is the covariance of the
-        % normalized matrices (mean removed, divided by standard deviation)
-        % divided by the degrees of freedom (number of time points - 1). 
-        corrs = (data_zscored' * data_zscored)/(size(data_zscored, 1) - 1);
-
 end 
