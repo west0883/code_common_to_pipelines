@@ -83,7 +83,8 @@ function [parameters] = CorrelateTimeseriesData(parameters)
         % Or else just 2 dimensions (the minimum)
         else 
 
-             % permute dimensions so it's easier to use parfor.
+             % permute dimensions so time is in correct place (first
+             % dimention)
              data = permute(parameters.data, [parameters.sourceDim parameters.timeDim]); 
 
              % Correlate
@@ -96,27 +97,12 @@ end
 
 function [corrs] = SubCorrelater(data)
 
-        num_sources = size(data,1);
-
-        % Make a holding matrix that will hold all the correlations. Is set 
-        % as size source number x source number.
-        corrs = NaN (num_sources); 
+        % zscore data for calculating correlation with matrix math
+        [data_zscored] = zscore(data);
        
-        % Iterate through first sources. Could do only upper triangle, but
-        % with the way parfor works that would actually be slower.
-        parfor i1 = 1:num_sources
-           
-            for i2 = 1:num_sources
-                
-                % Perform correlation.
-                R=corrcoef(data(i1,:), data(i2,:)); 
-     
-                % Store correlation coefficient in corrs
-                % matrix.
-                corrs(i1, i2) = R(1,2);
-            end
-        end 
+        % Pearson correlation with matrix math: is the covariance of the
+        % normalized matrices (mean removed, divided by standard deviation)
+        % divided by the degrees of freedom (number of time points - 1). 
+        corrs = (data_zscored' * data_zscored)/(size(data_zscored, 1) - 1);
 
-        % Now convert to only lower triangle. 
-       % corrs = tril(corrs, -1);
 end 
