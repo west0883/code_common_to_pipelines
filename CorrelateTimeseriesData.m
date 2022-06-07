@@ -61,15 +61,16 @@ function [parameters] = CorrelateTimeseriesData(parameters)
                 % Grab needed timeseries.
                 data = parameters.data(dimensions_extraction{:});
               
-                % Permute to put dimensions in best place, if needed
-                if parameters.sourceDim > parameters.timeDim
+                % Permute to put dimensions in best place, if needed (time
+                % in first dimension)
+                if parameters.sourceDim < parameters.timeDim
 
                     data = permute(data, [2 1]);
 
                 end
 
                 % Correlate
-                [corrs] = corrcoeff(data);
+                [corrs] = corrcoef(data);
 
                 % Put into a holding matrix of all corrs. 
                 correlations(dimensions_extraction{:}) = corrs;
@@ -85,10 +86,10 @@ function [parameters] = CorrelateTimeseriesData(parameters)
 
              % permute dimensions so time is in correct place (first
              % dimention)
-             data = permute(parameters.data, [parameters.sourceDim parameters.timeDim]); 
+             data = permute(parameters.data, [parameters.timeDim parameters.sourceDim]); 
 
              % Correlate
-             parameters.correlation = corrcoeff(data);
+             parameters.correlation = corrcoef(data);
 
         end 
     end
