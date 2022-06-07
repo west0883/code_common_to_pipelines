@@ -64,15 +64,21 @@ function [] = RunAnalysis(functions, parameters)
 
         % Get this list of loading and saving string-creating parameters.keywords and
         % variables
-        % Keywords should be the names of each iterator, which are in the
-        % first column of iterators cell. Also include the iterator names.
-        parameters.keywords = [parameters.loop_list.iterators(:,1); parameters.loop_list.iterators(:,3)];
+        
+        if ~iscell(parameters.loop_list.iterators) && strcmp(parameters.loop_list.iterators, 'none')
+            parameters.keywords = {'none'};
+            parameters.values = {NaN};
+        else
+            % Keywords should be the names of each iterator, which are in the
+            % first column of iterators cell. Also include the iterator names.
+            parameters.keywords = [parameters.loop_list.iterators(:,1); parameters.loop_list.iterators(:,3)];
 
-        % Values are the corresponding values in the looping output list
-        % for each keyword's field.
-        parameters.values = cell(size(parameters.keywords));
-        for i = 1: numel(parameters.keywords)
-            parameters.values{i} = looping_output_list(itemi).(cell2mat(parameters.keywords(i)));
+            % Values are the corresponding values in the looping output list
+            % for each keyword's field.
+            parameters.values = cell(size(parameters.keywords));
+            for i = 1: numel(parameters.keywords)
+                parameters.values{i} = looping_output_list(itemi).(cell2mat(parameters.keywords(i)));
+            end
         end
 
         % *** Loading ***
@@ -221,12 +227,15 @@ function [] = RunAnalysis(functions, parameters)
         % each loop level at this loop (i.e, in this mouse, how many days
         % are there). Makes it easier for called functions to throw
         % errors/know where they are in analysis without accessing loop_list.  
-        parameters.maxIterations = [];
-        parameters.maxIterations.numbers_only = [];
-        for i = 1:size(parameters.loop_list.iterators,1)
-            
-            parameters.maxIterations.(parameters.loop_list.iterators{i,3}) = maxIterations(itemi, i);
-            parameters.maxIterations.numbers_only = [parameters.maxIterations.numbers_only maxIterations(itemi, i)];
+        if ~iscell(parameters.loop_list.iterators) && strcmp(parameters.loop_list.iterators, 'none')
+        else 
+            parameters.maxIterations = [];
+            parameters.maxIterations.numbers_only = [];
+            for i = 1:size(parameters.loop_list.iterators,1)
+                
+                parameters.maxIterations.(parameters.loop_list.iterators{i,3}) = maxIterations(itemi, i);
+                parameters.maxIterations.numbers_only = [parameters.maxIterations.numbers_only maxIterations(itemi, i)];
+            end
         end
 
         % *** Run functions chosen by user. *** 
