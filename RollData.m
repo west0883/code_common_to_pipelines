@@ -9,12 +9,12 @@ function [parameters] = RollData(parameters)
 
     % If the roll dimension is greater than the roll window plus 1 step
     % (can get at least 1 roll out of it) 
-    if size(parameters.data, parameters.rollDim) > (parameters.windowSize + parameters.stepSize)
+    % Figure out how many rolls you can get out of it (should be a
+    % whole number). 
+    duration = size(parameters.data, parameters.rollDim);
+    number_of_rolls = CountRolls(duration, parameters.windowSize, parameters.stepSize);
 
-        % Figure out how many rolls you can get out of it (should be a
-        % whole number). 
-        number_of_rolls = (size(parameters.data, parameters.rollDim) - parameters.windowSize)/parameters.stepSize;
-
+    if number_of_rolls > 1
         % ***Set up new holder matrix with abstracted dimensions. Make 1
         % extra*** dimension for adding new rolls.
         dimensions_holder = repmat({':'},1, ndims(parameters.data) + 1);
@@ -39,7 +39,7 @@ function [parameters] = RollData(parameters)
         for i = 1:number_of_rolls
             
             dimensions_insert{end} = i;
-            startframe = (i -1) * parameters.stepSize + 1;
+            startframe = (i - 1) * parameters.stepSize + 1;
             endframe = startframe + parameters.windowSize - 1;
             dimensions_extract{parameters.rollDim} = [startframe:endframe];
 
@@ -47,13 +47,13 @@ function [parameters] = RollData(parameters)
 
         end
 
-        % Put data_rolled into parameters.
-        parameters.data_rolled = data_rolled;
-        parameters.roll_number = number_of_rolls;
-
     % Otherwise, data_rolled is just the original data
-    else
-        parameters.data_rolled = parameters.data; 
-        parameters.roll_number = 1;
+    else 
+        data_rolled = parameters.data;
     end
+
+    % Put data_rolled into parameters.
+    parameters.data_rolled = data_rolled;
+    parameters.roll_number = number_of_rolls;
+
 end
