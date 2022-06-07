@@ -32,41 +32,53 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     if ~isfield(loop_list, 'iterators') || isempty(loop_list.iterators)
        error('A non-empty field in loop list called "iterators" is required.');
     end 
-    
-    % Display to user what iterators are being used.
-    display_string = ['Looping through'];
-    for i = 1:size(loop_list.iterators,1)
-        display_string = [display_string ' ' loop_list.iterators{i,1}];
+
+    % If user said don't use any iterators (happens sometimes when using
+    % RunAnalysis), 
+    if ~iscell(loop_list.iterators) && strcmp(loop_list.iterators, 'none')
         
-        % On all but last entry, also include a comma.
-        if i ~= size(loop_list.iterators,1)
-            display_string = [display_string ','];
-        end
-    end
-    disp(display_string);
+        % Make looping output list .iterators be 1 item. 
+        looping_output_list.iterators = {'none', 0}; 
+        none_flag = true; 
+        maxIterations = 1;
 
-    % Grab the number of digits user wants to use for iterating numbers in
-    % filenames (like with stacks). Otherwise, default to 3 digits.
-    if isfield(loop_list, 'digitNumber')
-       digitNumber = loop_list.digitNumber;
-    else 
-       digitNumber = 3; 
-    end
-
-    % Initialize output variable as empty cell.
-    looping_output_list.iterators = {cell(1, 2)};
-    
-    % Initialize variable that holds max iterator values;
-    maxIterations = []; 
-
-    % For each loop level the user asks for,
-    for i = 1:size(loop_list.iterators,1)
-        
-        % Run the output variable recursively through the LoopSubGenerator
-        % function. Needs to know where everything is, so also include other loop info variables. 
-        [looping_output_list_2, maxIterations] = LoopSubGenerator(i,looping_output_list.iterators, loop_list.iterators, loop_variables, maxIterations, digitNumber);
-        looping_output_list.iterators = looping_output_list_2;
+    else
+        none_flag = false;
+        % Display to user what iterators are being used.
+        display_string = ['Looping through'];
+        for i = 1:size(loop_list.iterators,1)
+            display_string = [display_string ' ' loop_list.iterators{i,1}];
             
+            % On all but last entry, also include a comma.
+            if i ~= size(loop_list.iterators,1)
+                display_string = [display_string ','];
+            end
+        end
+        disp(display_string);
+    
+        % Grab the number of digits user wants to use for iterating numbers in
+        % filenames (like with stacks). Otherwise, default to 3 digits.
+        if isfield(loop_list, 'digitNumber')
+           digitNumber = loop_list.digitNumber;
+        else 
+           digitNumber = 3; 
+        end
+    
+        % Initialize output variable as empty cell.
+        looping_output_list.iterators = {cell(1, 2)};
+        
+        % Initialize variable that holds max iterator values;
+        maxIterations = []; 
+    
+        % For each loop level the user asks for,
+        for i = 1:size(loop_list.iterators,1)
+            
+            % Run the output variable recursively through the LoopSubGenerator
+            % function. Needs to know where everything is, so also include other loop info variables. 
+            [looping_output_list_2, maxIterations] = LoopSubGenerator(i,looping_output_list.iterators, loop_list.iterators, loop_variables, maxIterations, digitNumber);
+            looping_output_list.iterators = looping_output_list_2;
+                
+        end
     end
     
     % ** Deal with empty entries.**
@@ -196,9 +208,11 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
     output_structure = struct;
 
     % Get names for structure
-    structure_names ={};  
-    for i = 1:size(loop_list.iterators,1)
-        structure_names = [structure_names; [loop_list.iterators{i, 1}]; [loop_list.iterators{i,3}]];
+    if ~none_flag
+        structure_names ={};  
+        for i = 1:size(loop_list.iterators,1)
+            structure_names = [structure_names; [loop_list.iterators{i, 1}]; [loop_list.iterators{i,3}]];
+        end
     end
 
     % Put values in to structure, starting with load and save fields.
@@ -223,8 +237,10 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
         end 
 
         % Now run for each iterator field. 
-        for i = 1:numel(structure_names)
-            output_structure(ii).(structure_names{i}) = looping_output_list.iterators{ii, i};
+        if ~none_flag
+            for i = 1:numel(structure_names)
+                output_structure(ii).(structure_names{i}) = looping_output_list.iterators{ii, i};
+            end
         end
     end
    
