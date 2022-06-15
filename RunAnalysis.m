@@ -106,6 +106,18 @@ function [] = RunAnalysis(functions, parameters)
                 filename = CreateStrings(filename_cell, parameters.keywords, parameters.values);
                 variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
                 
+                % If there's a * in the filename, use a dir function to
+                % search for it. 
+                if contains(filename, '*')
+
+                    filename_structure = dir([input_dir filename]);
+                    if isempty(filename_structure)
+                        error(['Could not find file with name ' input_dir filename]);
+                    else
+                        filename = filename_structure(1).name;
+                    end
+                end
+
                 % Load 
                 retrieved_value = cell(numel(load_fields),1);
                 % Make sure file exists
