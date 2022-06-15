@@ -69,6 +69,8 @@ function [segmented_timeseries] = SubSegmenter(time_ranges, timeseries, segmentD
                 else 
                     disp(['Dimension error.']);
                 end
+
+                segmented_timeseries = [];
                 continue
             end
            
