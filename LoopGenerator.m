@@ -285,7 +285,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         % Create a string for "eval" evalutaion of lower value name.
         lower_values_string = CreateStrings(loop_list{i,2}, string_searches, number_searches ); 
         eval(['lower_values = {' lower_values_string '};']);
-        
+     
         % If the list you want is a numeric array inside a cell array, get
         % it out, turn into strings, then turn to a cell array.
         if max(size(lower_values)) == 1 && ~isempty(lower_values{1}) && ~iscell(lower_values{1}) && isnumeric(lower_values{1})
