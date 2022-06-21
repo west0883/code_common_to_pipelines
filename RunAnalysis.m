@@ -164,19 +164,21 @@ function [] = RunAnalysis(functions, parameters)
                     end
                     
                 else
-                    % If the user said to abort this item if there was no existing file
-                    % (default is to just give the message)
-                    if isfield(parameters, 'load_abort_flag') && parameters.load_abort_flag 
-                        
+                    % If there was no existing file & user didn't specify
+                    % what to do, abort this iteration (default is to
+                    % abort).
+                    if isfield(parameters, 'load_abort_flag') && ~parameters.load_abort_flag
+
+                        % If no file, report (sometimes we want this).
+                        warning(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
+ 
+                    else
                         % Say to abort this item and continue to next item
                         abort = true; 
-                        disp(['Aborting analysis: No file for ' load_fields{loadi} ' found at ' input_dir filename ]);
+                        warning(['Aborting analysis: No file for ' load_fields{loadi} ' found at ' input_dir filename ]);
                         
                         % Break out of loading loop
                         break 
-                    else
-                        % If no file, report (sometimes we want this).
-                        disp(['No file for ' load_fields{loadi} ' found at ' input_dir filename]);
                     end
                 end 
             end
