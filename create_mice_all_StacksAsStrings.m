@@ -233,5 +233,8 @@ for mousei = 1:numel(mouse_indices)
     clear day_indices
 end
 
+% Remove the mouse I don't want.
+mice_all = mice_all([1:6, 8]);
+
 % Save mice_all
 save([dir_out 'mice_all.mat'], 'mice_all');
