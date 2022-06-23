@@ -321,19 +321,19 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         for loweri = 1:numel(lower_values)
             
             lower_value = lower_values{loweri};
+
+            % Skip if lower value is empty.
+            if  isempty(lower_value)
+                 % Put in padding.
+                looping_output_list_2 =  [looping_output_list_2; higher_values, {NaN}, {NaN}];
+                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
+                continue
+            end
             
             % Skip if lower value is NaN.
             if isnan(lower_value)
                 % Put in padding.
                 looping_output_list_2 = [looping_output_list_2; higher_values, {NaN}, {NaN}];
-                 maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
-                continue
-            end
-
-            % Skip if lower value is empty.
-            if  isempty(lower_value)
-                 % Put in p adding.
-                looping_output_list_2 =  [looping_output_list_2; higher_values, {NaN}, {NaN}];
                 maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
                 continue
             end
