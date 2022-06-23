@@ -111,13 +111,17 @@ function [] = RunAnalysis(functions, parameters)
                 if contains(filename, '*')
 
                     filename_structure = dir([input_dir filename]);
+
+                    % If it could not find the data,
                     if isempty(filename_structure)
-                        error(['Could not find file with name ' input_dir filename]);
+                        warning(['Aborting analysis. Could not find file with name ' input_dir filename ]);
+                        abort = true;
+                        break
                     else
                         filename = filename_structure(1).name;
                     end
                 end
-
+            
                 % Load 
                 retrieved_value = cell(numel(load_fields),1);
                 % Make sure file exists
