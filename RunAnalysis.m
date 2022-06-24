@@ -193,7 +193,7 @@ function [] = RunAnalysis(functions, parameters)
            % Go to the next item i value where there's loading for the
            % failed load field. Loadi is whatever it was when the load look
            % broke.
-           holder = looping_output_list(itemi + 1:end).([load_fields{loadi} '_load']);
+           holder = [looping_output_list(itemi + 1:end).([load_fields{loadi} '_load'])];
            
            % If there's no next one, finish the loop 
            if isempty (find(holder, 1))
