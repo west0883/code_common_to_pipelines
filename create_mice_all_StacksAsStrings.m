@@ -136,7 +136,7 @@ clear mice_all
     
     % Specify sheet and range
     opts.Sheet = "Days collected";
-    opts.DataRange = "A8:P115";
+    opts.DataRange = "A8:P113";
     
     % Specify column names and types
     opts.VariableNames = ["Mouse", "DayNumber", "Day", "Notes", "MotorizedStackNumbers", "NumberMotorizedStacks", "SpeedsUsed", "AccelsUsed", "AvgNumberTransitionsPerStack", "ProbeFrequency", "PuttyUsedForMotor", "MislabeledPuttyTrialNumbers", "BadBehaviorCamStackNumbers", "SpontaneousStackNumbers", "NumberSpontaneousStacks", "MislabeledPuttyTrialNumbers_1"];
