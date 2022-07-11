@@ -319,21 +319,29 @@ function [] = RunAnalysis(functions, parameters)
             % Assign to variable strings now (so you can iterate between
             % saves). 
 
-            % Get data out of parameters structure
-            variable_out = parameters.(save_fields{savei});
-            variable_cell = parameters.loop_list.things_to_save.(save_fields{savei}).variable;
-            variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
-
-            % Convert to non-generic variable name
-            eval([variable_string ' = variable_out;']);
-
-
+            % A called function can make the dont_save field into a cell
+            % array, one entry for each save field.
+            if iscell(parameters.dont_save)
+                dont_save = parameters.dont_save{savei};
+            else
+                % Otherwise, just pull out dont_save
+                dont_save = parameters.dont_save;
+            end
+           
             % Find out if you save at this level.
             save_flag = looping_output_list(itemi).([save_fields{savei} '_save']);
            
             % If you save at this level, or if the called function sends
             % out the "save_now flag", 
-            if ~parameters.dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
+            if ~dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
+
+                % Get data out of parameters structure
+                variable_out = parameters.(save_fields{savei});
+                variable_cell = parameters.loop_list.things_to_save.(save_fields{savei}).variable;
+                variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
+    
+                % Convert to non-generic variable name
+                eval([variable_string ' = variable_out;']);
 
                 % Create strings for all saving info
                 dir_cell = parameters.loop_list.things_to_save.(save_fields{savei}).dir;
@@ -372,7 +380,7 @@ function [] = RunAnalysis(functions, parameters)
                         fig_type = fig_list_variable.saveas_type;
                         
                         % Save the fancy figure, too. 
-                        saveas(variable_out, filename, fig_type);
+                        saveas(variable_out, [output_dir filename], fig_type);
 
                     end 
                 else
