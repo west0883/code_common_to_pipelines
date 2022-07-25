@@ -330,19 +330,19 @@ function [] = RunAnalysis(functions, parameters)
            
             % Find out if you save at this level.
             save_flag = looping_output_list(itemi).([save_fields{savei} '_save']);
-           
+
+            % Get data out of parameters structure
+            variable_out = parameters.(save_fields{savei});
+            variable_cell = parameters.loop_list.things_to_save.(save_fields{savei}).variable;
+            variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
+
+            % Convert to non-generic variable name
+            eval([variable_string ' = variable_out;']);
+            
             % If you save at this level, or if the called function sends
             % out the "save_now flag", 
             if ~dont_save && (save_flag || (isfield(parameters, 'save_now') && parameters.save_now))
-
-                % Get data out of parameters structure
-                variable_out = parameters.(save_fields{savei});
-                variable_cell = parameters.loop_list.things_to_save.(save_fields{savei}).variable;
-                variable_string = CreateStrings(variable_cell, parameters.keywords, parameters.values);
-    
-                % Convert to non-generic variable name
-                eval([variable_string ' = variable_out;']);
-
+                
                 % Create strings for all saving info
                 dir_cell = parameters.loop_list.things_to_save.(save_fields{savei}).dir;
                 filename_cell = parameters.loop_list.things_to_save.(save_fields{savei}).filename;
