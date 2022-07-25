@@ -21,23 +21,13 @@ function [parameters] = AverageByNode(parameters)
 
     number_of_sources = parameters.number_of_sources;
 
-    % If this has a comparison type, pull it out.
-
-    % Make a default comparison flag, false.
-    comparison_flag = false;
-
-    % Find if "comparison_type" is in the loop keywords.
-    if any(strcmp(parameters.keywords, 'comparison_type'))
-
-        comparison_type = parameters.values(strcmp(parameters.keywords, 'comparison_type'));
-        comparison_flag = true; 
-
-    elseif isfield(parameters, 'comparison_type')
-        comparison_type = parameters.comparison_type;
-        comparison_flag = true;
+    % Find if this dataset was from PLSR (and needs to be separated by
+    % variable type)
+    if isfield(parameters, 'fromPLSR') && parameters.fromPLSR
+        PLSR_flag = true;
 
     else
-        comparison_flag = false;
+        PLSR_flag = false;
 
     end
 
@@ -64,7 +54,7 @@ function [parameters] = AverageByNode(parameters)
         % If this is a "comparison" from PLSR, need to check if there was
         % more than one variable included (like for "continuous"
         % comparisons).
-        if comparison_flag
+        if PLSR_flag
             
             % Find number of response variables (will be a multiple of
             % number of unique correlation pairs).
@@ -76,17 +66,14 @@ function [parameters] = AverageByNode(parameters)
                 error('Wrong number of correlations.')
             end
 
-            data = reshape(data, unique_corr_pairs, response_variable_number, size(data,2));
-            
-            % Permute so different mice are still in dimension 2.
-            data = permute(data, [1 3 2]);
+            data = reshape(data, unique_corr_pairs, response_variable_number, size(data,2), size(data,3));
 
         end
 
         % Make a holder matrix, insert the data.
         % For now just assuming the original vectors had no more than 3
         % dimensions.
-        holder = NaN(parameters.number_of_sources, parameters.number_of_sources, size(data, 2), size(data, 3));
+        holder = NaN(parameters.number_of_sources, parameters.number_of_sources, size(data, 2), size(data, 3), size(data,4));
 
         % Get some variables before parfor loop
         indices = parameters.indices;
@@ -134,6 +121,12 @@ function [parameters] = AverageByNode(parameters)
     % Take averages.
     node_averages = squeeze(mean(data, 1, 'omitnan'));
     node_stds = squeeze(std(data, [], 1, 'omitnan'));
+
+    % If from PLSR, return different variables to same dimension (will
+    % probably work better with later steps that were originally designed
+    % this way). 
+    if PLSR_flag
+    end
 
     % Put into output structure.
     parameters.node_averages = node_averages;
