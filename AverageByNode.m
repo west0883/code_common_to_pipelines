@@ -51,6 +51,21 @@ function [parameters] = AverageByNode(parameters)
 
         end 
 
+        % If user says to only use the changes found to be significant, replace
+        % non-significant values with NaNs
+        if isfield(parameters, 'significantOnly') && parameters.significantOnly
+    
+            if parameters.isVector
+                data(~parameters.significance,:,:) = NaN;
+            else
+    
+                error('no code yet for significantOnly with non-vector formats');
+    
+            end
+    
+        end
+
+
         % If this is a "comparison" from PLSR, need to check if there was
         % more than one variable included (like for "continuous"
         % comparisons).
@@ -79,23 +94,25 @@ function [parameters] = AverageByNode(parameters)
         indices = parameters.indices;
         size3 = size(holder,3);
         size4 = size(holder, 4);
+        size5 = size(holder, 5);
 
         indices_upper = find(triu(ones(parameters.number_of_sources), 1));
 
         % Insert.
-        for i = 1:size3
-            for j = 1:size4
+        parfor k = 1:size5
+            for i = 1:size3
+                for j = 1:size4
 
-                subholder = NaN(number_of_sources, number_of_sources);
-                subholder(indices) = data(:, i, j);
-
-                % Duplicate betas across diagonal.
-                betas_flipped = subholder';
-                elements_upper = betas_flipped(indices_upper);
-                subholder(indices_upper) = elements_upper;
-
-                holder(:, :, i, j) = subholder;
-
+                    subholder = NaN(number_of_sources, number_of_sources);
+                    subholder(indices) = data(:, i, j,k);
+    
+                    % Duplicate betas across diagonal.
+                    betas_flipped = subholder';
+                    elements_upper = betas_flipped(indices_upper);
+                    subholder(indices_upper) = elements_upper;
+    
+                    holder(:, :, i, j, k) = subholder;
+                end
             end
         end
 
@@ -118,18 +135,30 @@ function [parameters] = AverageByNode(parameters)
         data(index) = NaN;
     end
 
-    % Take averages.
-    node_averages = squeeze(mean(data, 1, 'omitnan'));
-    node_stds = squeeze(std(data, [], 1, 'omitnan'));
+    % Take averages.Also calculate sums (is useful when you don't want non-significant
+    % values.)
+    node_averages = mean(data, 1, 'omitnan');
+    node_stds = std(data, [], 1, 'omitnan');
+    node_sums = sum(data, 1, 'omitnan');
 
     % If from PLSR, return different variables to same dimension (will
     % probably work better with later steps that were originally designed
     % this way). 
     if PLSR_flag
+
+        node_averages = reshape(node_averages, [1, number_of_sources * response_variable_number, size(node_averages,4), size(node_averages,5)]);
+        node_stds = reshape(node_stds, [1, number_of_sources * response_variable_number, size(node_stds,4), size(node_stds,5)]);
+        node_sums = reshape(node_sums, [1, number_of_sources * response_variable_number, size(node_sums,4), size(node_sums,5)]);
     end
+
+    % Now squeeze out the leading 1.
+    node_averages = squeeze(node_averages);
+    node_stds = squeeze(node_stds);
+    node_sums = squeeze(node_sums);
 
     % Put into output structure.
     parameters.node_averages = node_averages;
     parameters.node_stds = node_stds;
+    parameters.node_sums = node_sums;
 
 end
