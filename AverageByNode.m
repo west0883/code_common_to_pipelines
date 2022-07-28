@@ -99,12 +99,15 @@ function [parameters] = AverageByNode(parameters)
         indices_upper = find(triu(ones(parameters.number_of_sources), 1));
 
         % Insert.
-        parfor k = 1:size5
+        for k = 1:size5
             for i = 1:size3
                 for j = 1:size4
 
                     subholder = NaN(number_of_sources, number_of_sources);
+                    try
                     subholder(indices) = data(:, i, j,k);
+                    catch
+                    end
     
                     % Duplicate betas across diagonal.
                     betas_flipped = subholder';
