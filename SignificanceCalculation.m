@@ -60,7 +60,6 @@ function [parameters] = SignificanceCalculation(parameters)
             % All significant results.
             significance.all = significance.increase | significance.decrease;
 
-
     
         % Otherwise, use a normal distribution
         else
@@ -89,19 +88,35 @@ function [parameters] = SignificanceCalculation(parameters)
      
                 % Divide alpha value in half (to get increase or decrease)
                 alpha = parameters.alphaValue ./ 2;
-    
+           % end
+                
+           % If using false discovery rate,
+           if isfield(parameters, 'useFDR') && parameters.useFDR 
+
+               decreases = 1.000000 - significance.pvals_raw; 
+               increases = significance.pvals_raw;
+
+               pvals = min(decreases, increases); 
+
+               [significance.all, significance.crit_p] = fdr_bh(pvals, alpha, 'dep','no');
+
+               significance.increase = significance.pvals_raw > 0.5 & significance.all;
+               significance.decrease = significance.pvals_raw < 0.5 & significance.all;
+
+           % If no false discovery rate,
+           else
+
                 % Calculate significance for increase & decrease.
                 significance.increase = significance.pvals_raw > (1 - alpha); 
                 significance.decrease = significance.pvals_raw < alpha; 
-    
+
                 % All significant results.
                 significance.all = significance.increase | significance.decrease;
                
-    %         % Else, user is specifically saying not to use two-tailed.
-    %         else
-    %             significance.
-    % 
-    %         end
+
+           end
+    
+
         end
 
     % Use bootstrapping
@@ -162,8 +177,7 @@ function [parameters] = SignificanceCalculation(parameters)
         end
       
     end
-
-
+    
     % Put significance into parameters structure.
     parameters.significance = significance;
 
