@@ -3,9 +3,7 @@
 % 2/25/22
 
 % Takes an input cell array of character strings, and inputs any variable
-% to any keyword.
-% and outputs the file
-% string with the correct mouse and day in them. 
+% to any keyword. Outputs a string.
 
 % Input: 
 % string_format_cell--cell array. Establish the format of the file names of compressed data. Each piece
@@ -14,6 +12,10 @@
 % string_format_cell. 
 % variables - a cell array of variables (with string values) that you put in to replace the
 % corresponding keywords.
+
+% Output: 
+% new_string -- string (character array); the new string with keywords
+% inserted.
 
 function [new_string]=CreateStrings(string_format_cell, keywords, variables)
     
@@ -29,7 +31,7 @@ function [new_string]=CreateStrings(string_format_cell, keywords, variables)
         keyword_index=find(strcmp(string_format_cell, keyword));
         
         % If there is a position, but there's no corresponding keyword
-        if ~isempty(keyword_index) & isempty(variables{keywordi})
+        if ~isempty(keyword_index) && isempty(variables{keywordi})
 
             error(['No variable given for ''' keyword '''.']);
 
