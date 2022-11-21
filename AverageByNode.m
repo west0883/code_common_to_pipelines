@@ -39,6 +39,11 @@ function [parameters] = AverageByNode(parameters)
     % Pull out data from parameters structure for easier use.
     data = parameters.data;
 
+    % If using average sigmas, pull those out, too
+    if parameters.multiply_by_average_sigma
+        sigmas = parameters.average_sigmas;
+    end
+
     % If correlations are in vector format, reshape into a full correlation
     % matrix.
     if parameters.isVector
@@ -48,7 +53,13 @@ function [parameters] = AverageByNode(parameters)
         if parameters.corrsDim ~= 1
             
             data = permute(data, [parameters.corrsDim  setdiff(1:ndims(data), parameters.corrsDim, 'stable')]);
+           
+        end 
 
+        if parameters.sigmasDim ~= 1
+            
+            sigmas= permute(sigmas, [parameters.corrsDim  setdiff(1:ndims(data), parameters.corrsDim, 'stable')]);
+           
         end 
 
         % If user says to only use the changes found to be significant, replace
@@ -82,8 +93,17 @@ function [parameters] = AverageByNode(parameters)
             end
 
             data = reshape(data, unique_corr_pairs, response_variable_number, size(data,2), size(data,3));
+            if parameters.multiply_by_average_sigma
+                sigmas =  reshape(sigmas, unique_corr_pairs, response_variable_number, size(sigmas,2), size(sigmas,3));
+            end
 
         end
+
+        % Multiply data by sigmas
+        if parameters.multiply_by_average_sigma
+                data = data .* sigmas;
+        end
+
 
         % Make a holder matrix, insert the data.
         % For now just assuming the original vectors had no more than 3
@@ -104,10 +124,9 @@ function [parameters] = AverageByNode(parameters)
                 for j = 1:size4
 
                     subholder = NaN(number_of_sources, number_of_sources);
-                    try
+                
                     subholder(indices) = data(:, i, j,k);
-                    catch
-                    end
+                   
     
                     % Duplicate betas across diagonal.
                     betas_flipped = subholder';
