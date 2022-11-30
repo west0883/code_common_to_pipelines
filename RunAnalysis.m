@@ -83,7 +83,8 @@ function [] = RunAnalysis(functions, parameters)
 
         % *** Loading ***
         % Check each potential thing to load
-       
+        retrieved_value = cell(numel(load_fields),1); 
+        
         for loadi = 1:numel(load_fields)
             
             % Figure out if that item should be loaded
@@ -123,7 +124,7 @@ function [] = RunAnalysis(functions, parameters)
                 end
             
                 % Load 
-                retrieved_value = cell(numel(load_fields),1);
+                
                 % Make sure file exists
                 if isfile([input_dir filename])
 
@@ -139,7 +140,7 @@ function [] = RunAnalysis(functions, parameters)
                            
                             %eval(['retrieved_value{loadi} = load_function(''' input_dir filename ''',' this_load_item.load_function_additional_inputs ');']);
                             retrieved_value{loadi} = load_function([input_dir filename], this_load_item.load_function_additional_inputs{:}); 
-                            
+
                         else 
                             retrieved_value{loadi} = load_function([input_dir filename]); 
                         end 
