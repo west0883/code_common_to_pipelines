@@ -139,7 +139,7 @@ function [] = RunAnalysis(functions, parameters)
                            
                             eval(['retrieved_value{loadi} = load_function(' input_dir filename ',' this_load_item.load_function_additional_inputs ');']);
                         
-                        else git 
+                        else 
                             retrieved_value{loadi} = load_function([input_dir filename]); 
                         end 
                     else 
