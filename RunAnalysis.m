@@ -137,8 +137,9 @@ function [] = RunAnalysis(functions, parameters)
                         % If there are inputs to put in,
                         if isfield(this_load_item, 'load_function_additional_inputs')
                            
-                            eval(['retrieved_value{loadi} = load_function(' input_dir filename ',' this_load_item.load_function_additional_inputs ');']);
-                        
+                            %eval(['retrieved_value{loadi} = load_function(''' input_dir filename ''',' this_load_item.load_function_additional_inputs ');']);
+                            retrieved_value{loadi} = load_function([input_dir filename], this_load_item.load_function_additional_inputs{:}); 
+                            
                         else 
                             retrieved_value{loadi} = load_function([input_dir filename]); 
                         end 
