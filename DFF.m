@@ -14,6 +14,6 @@
 
 function [parameters] = DFF(parameters)
 
-    parameters.DFF = 100 * ((parameters.values + parameters.fluorescence_mean)./parameters.fluorescence_mean) - 100; 
+    parameters.DFF = 100 * ((parameters.data + parameters.fluorescence_mean)./parameters.fluorescence_mean) - 100; 
 
 end 
