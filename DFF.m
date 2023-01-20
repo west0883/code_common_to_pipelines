@@ -14,6 +14,8 @@
 
 function [parameters] = DFF(parameters)
 
+    MessageToUser('Calculating DFF on ', parameters);
+    
     parameters.DFF = 100 * ((parameters.data + parameters.fluorescence_mean)./parameters.fluorescence_mean) - 100; 
 
 end 
