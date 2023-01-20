@@ -221,8 +221,11 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
         % Go through each thing to load
         for loadi = 1:numel(load_fields)
             % Get the yes-or-no to load
-            load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
-
+            if ~iscell(loop_list.iterators) && strcmp(loop_list.iterators, 'none')
+                load_flag = {true};
+            else
+                load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
+            end 
             % Set the yes-or-no to the proper place in the output structure
             output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
         end 
