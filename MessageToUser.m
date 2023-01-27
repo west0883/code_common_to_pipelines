@@ -13,10 +13,14 @@
 
 function [] = MessageToUser(message, parameters)
    
-    % If there's a "values" field from RunAnalysis, print updating message
-    % for user. 
-    if isfield(parameters, 'values')
-        holder = strjoin(parameters.values(1:numel(parameters.values)/2), ', ');
-        disp([message holder]); 
+    % If there's a flag saying this function was called through RunAnalysis
+    if  isfield(parameters, 'RunAnalysis_flag') && parameters.RunAnalysis_flag
+
+        % If there's a "values" field from RunAnalysis, print updating message
+        % for user. 
+        if isfield(parameters, 'values')
+            holder = strjoin(parameters.values(1:numel(parameters.values)/2), ', ');
+            disp([message holder]); 
+        end
     end
 end
