@@ -5,10 +5,9 @@
 % Takes the "real" sample values and compares it to a null distribution of
 % values to calculate p-values. Run with RunAnalysis.
 % Inputs:
-% parameters.testing_values
+% parameters.test_values
 % parameters.null_distribution
 % parameters.shufflesDim
-% parameters.find_significance -- true/false 
 % parameters.alphaValue -- the statistical alpha value.
 % parameters.twoTailed -- true/false-- if the statistical significance should be checked
 % as a two-tailed test. Default is "true"
