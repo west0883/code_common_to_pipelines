@@ -31,6 +31,10 @@ function [] = RunAnalysis(functions, parameters)
        error('A non-empty field in loop list called "things_to_save" is required.');
     end 
 
+    % Make a flag telling any lower-down functions if it was called with
+    % RunAnalysis
+    parameters.RunAnalysis_flag = true; 
+    
     % Grab the number of digits user wants to use for iterating numbers in
     % filenames in LoopGenerator (like with stacks). Otherwise, default to 3 digist.
     if isfield(parameters, 'digitNumber')
