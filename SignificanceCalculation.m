@@ -27,6 +27,7 @@ function [parameters] = SignificanceCalculation(parameters)
 
     % if not using bootstrapping
     if ~isfield(parameters, 'useBootstrapping') || ~parameters.useBootstrapping 
+        
         % If user doesn't want to use a normal distribution,
         if isfield(parameters, 'useNormalDistribution')  && ~parameters.useNormalDistribution
     
