@@ -340,7 +340,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
                 looping_output_holder(loweri, 1:size(higher_values, 2)) = higher_values;
 
                 % Put in padding
-                looping_output_holder(loweri, end - 2 :end ) = [{NaN}, {NaN}]; 
+                looping_output_holder(loweri, end - 1 :end ) = [{NaN}, {NaN}]; 
                 
                 % Put in max iterations 
                 maxIterations_holder(loweri, :) = [higher_max_iterations, max_iteration];
