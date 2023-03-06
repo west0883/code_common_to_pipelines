@@ -310,7 +310,6 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
 
             lower_values = holdList; 
 
-
 %             lower_values = num2str(lower_values{1}(:));
 %             lower_values = cellstr(lower_values);
            
@@ -320,6 +319,11 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         end     
 
         max_iteration = numel(lower_values);
+
+        % Pre-allocate size of new looping output for lower levels
+        % (number of rows of lower values, number of columns of higher values, plus 2 for name and iterator of lower value)
+        looping_output_holder = cell(max_iteration, size(higher_values, 2) + 2);  
+        maxIterations_holder = NaN(max_iteration, size(higher_max_iterations, 2) + 1); 
 
         % Loop through each current value
         for loweri = 1:numel(lower_values)
@@ -362,5 +366,10 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             end
 
         end
+        
+        % Concatenate with bigger looping output
+        looping_output_list_2 = [looping_output_list_2; looping_output_holder];
+        maxIterations_out = [maxIterations_out; maxIterations_holder];
+
     end
 end
