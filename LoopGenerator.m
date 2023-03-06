@@ -224,19 +224,23 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             if ~iscell(loop_list.iterators) && strcmp(loop_list.iterators, 'none')
                 load_flag = {true};
             else
-                load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
+                load_flag = looping_output_list.load.(load_fields{loadi})(ii);
+                %load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
             end 
             % Set the yes-or-no to the proper place in the output structure
-            output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
+            output_structure(ii).([load_fields{loadi} '_load']) = load_flag{1};
+            %output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
         end 
 
         % Go through each thing to save
         for savei = 1:numel(save_fields)
             % Get the yes-or-no to save
-            save_flag = getfield(looping_output_list.save, save_fields{savei}, {ii});
+            save_flag = looping_output_list.save.(save_fields{savei})(ii);
+            %save_flag = getfield(looping_output_list.save, save_fields{savei}, {ii});
 
             % Set the yes-or-no to the proper place in the output structure
-            output_structure = setfield(output_structure, {ii}, [save_fields{savei} '_save'], cell2mat(save_flag));
+            output_structure(ii).([save_fields{savei} '_save']) = save_flag{1};
+            % output_structure = setfield(output_structure, {ii}, [save_fields{savei} '_save'], cell2mat(save_flag));
         end 
 
         % Now run for each iterator field. 
