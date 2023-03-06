@@ -120,7 +120,8 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
         for i = 1:numel(load_fields)
 
             % Get the level of loading for that item. 
-            load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
+            load_level = loop_list.things_to_load.(load_fields{i}).level; 
+            %load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
 
             % If user said to only save at the start, make holder a list of
             % zeros with a 1 at the start.
@@ -165,7 +166,8 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
         for i = 1:numel(save_fields)
             
             % Get the level of saveing for that item. 
-            save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
+            save_level = loop_list.things_to_save.(save_fields{i}).level; 
+            %save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
 
             % If user said to only save at the end, make holder a list of
             % zeros with a 1 at the end.
@@ -225,22 +227,19 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
                 load_flag = {true};
             else
                 load_flag = looping_output_list.load.(load_fields{loadi})(ii);
-                %load_flag = getfield(looping_output_list.load, load_fields{loadi}, {ii});
             end 
+
             % Set the yes-or-no to the proper place in the output structure
             output_structure(ii).([load_fields{loadi} '_load']) = load_flag{1};
-            %output_structure = setfield(output_structure, {ii}, [load_fields{loadi} '_load'], cell2mat(load_flag));
         end 
 
         % Go through each thing to save
         for savei = 1:numel(save_fields)
             % Get the yes-or-no to save
             save_flag = looping_output_list.save.(save_fields{savei})(ii);
-            %save_flag = getfield(looping_output_list.save, save_fields{savei}, {ii});
 
             % Set the yes-or-no to the proper place in the output structure
             output_structure(ii).([save_fields{savei} '_save']) = save_flag{1};
-            % output_structure = setfield(output_structure, {ii}, [save_fields{savei} '_save'], cell2mat(save_flag));
         end 
 
         % Now run for each iterator field. 
