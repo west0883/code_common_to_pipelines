@@ -330,21 +330,22 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             
             lower_value = lower_values{loweri};
 
-            % Skip if lower value is empty.
-            if  isempty(lower_value)
-                 % Put in padding.
-                looping_output_list_2 =  [looping_output_list_2; higher_values, {NaN}, {NaN}];
-                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
+            % Skip if lower value is empty, or if lower value is NaN
+            if isempty(lower_value) || isnan(lower_value)
+
+ 
+                % Put in higher values
+                looping_output_holder(loweri, 1:size(higher_values, 2)) = higher_values;
+
+                % Put in padding
+                looping_output_holder(loweri, end - 2 :end ) = [{NaN}, {NaN}]; 
+                
+                % Put in max iterations 
+                maxIterations_holder(loweri, :) = [higher_max_iterations, max_iteration];
+                
                 continue
             end
             
-            % Skip if lower value is NaN.
-            if isnan(lower_value)
-                % Put in padding.
-                looping_output_list_2 = [looping_output_list_2; higher_values, {NaN}, {NaN}];
-                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
-                continue
-            end
 
             % Concatenate to end of looping_output_list_2
 
@@ -366,7 +367,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             end
 
         end
-        
+
         % Concatenate with bigger looping output
         looping_output_list_2 = [looping_output_list_2; looping_output_holder];
         maxIterations_out = [maxIterations_out; maxIterations_holder];
