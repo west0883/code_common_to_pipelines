@@ -121,8 +121,7 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
 
             % Get the level of loading for that item. 
             load_level = loop_list.things_to_load.(load_fields{i}).level; 
-            %load_level = getfield(loop_list.things_to_load, load_fields{i}, 'level');
-
+  
             % If user said to only save at the start, make holder a list of
             % zeros with a 1 at the start.
             if strcmp(load_level, 'start')
@@ -167,7 +166,6 @@ function [looping_output_list, maxIterations] = LoopGenerator(loop_list, loop_va
             
             % Get the level of saveing for that item. 
             save_level = loop_list.things_to_save.(save_fields{i}).level; 
-            %save_level = getfield(loop_list.things_to_save, save_fields{i}, 'level');
 
             % If user said to only save at the end, make holder a list of
             % zeros with a 1 at the end.
