@@ -45,7 +45,7 @@ function [] = RunAnalysis(functions, parameters)
 
     % Generate list of things to loop through.
     [looping_output_list, maxIterations] = LoopGenerator(parameters.loop_list, parameters.loop_variables);
-   
+
     % Initialize iterator for looping through looping_output_list
     itemi = 1; 
 
