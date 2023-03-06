@@ -278,6 +278,8 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         end 
         if ~isempty(maxIterations_in)
             higher_max_iterations = maxIterations_in(higheri, :); 
+        else 
+            higher_max_iterations = [];
         end
 
         % Get the current values based on higher_values and where current
@@ -346,10 +348,10 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
                 continue
             end
             
-
             % Concatenate to end of looping_output_list_2
 
             % If the very first instance, overwrite the first empty entry.
+            % (and DON'T concatenate holder at end?)
             if i == 1 && higheri ==1 && loweri == 1
                 looping_output_list_2(1,:) = [{lower_value}, {loweri}];
                 maxIterations_out = max_iteration;
@@ -357,8 +359,11 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             % If the very first iteration level, don't need to include any higher
             % level values.
             elseif i == 1 && higheri ==1
-                looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
-                maxIterations_out = [maxIterations_out; max_iteration];
+
+                looping_output_holder(loweri, :) = [{lower_value}, {loweri}]; 
+                maxIterations_holder(loweri, :) = max_iteration; 
+                %looping_output_list_2 = [looping_output_list_2; {lower_value}, {loweri}];
+                %maxIterations_out = [maxIterations_out; max_iteration];
 
             % Concatenate new information along with information about higher level values.    
             else
