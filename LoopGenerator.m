@@ -359,8 +359,10 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
 
             % Concatenate new information along with information about higher level values.    
             else
-                looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
-                maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
+                looping_output_holder(loweri, :) = [higher_values {lower_value} {loweri}];
+                maxIterations_holder(loweri, :) = [higher_max_iterations, max_iteration];
+                %looping_output_list_2 = [looping_output_list_2; higher_values, {lower_value}, {loweri}];
+                %maxIterations_out = [maxIterations_out; higher_max_iterations, max_iteration];
             end
 
         end
