@@ -333,7 +333,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             lower_value = lower_values{loweri};
 
             % Skip if lower value is empty, or if lower value is NaN
-            if isempty(lower_value) || isnan(lower_value)
+            if isempty(lower_value) || any(isnan(lower_value))
 
  
                 % Put in higher values
@@ -347,18 +347,10 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
                 
                 continue
             end
-            
-            % Concatenate to end of looping_output_list_2
-
-            % If the very first instance, overwrite the first empty entry.
-            % (and DON'T concatenate holder at end?)
-            if i == 1 && higheri ==1 && loweri == 1
-                looping_output_list_2(1,:) = [{lower_value}, {loweri}];
-                maxIterations_out = max_iteration;
 
             % If the very first iteration level, don't need to include any higher
             % level values.
-            elseif i == 1 && higheri ==1
+            if i == 1 && higheri ==1
 
                 looping_output_holder(loweri, :) = [{lower_value}, {loweri}]; 
                 maxIterations_holder(loweri, :) = max_iteration; 
