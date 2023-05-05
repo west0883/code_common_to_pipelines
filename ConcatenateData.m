@@ -37,7 +37,7 @@ function [parameters] = ConcatenateData(parameters)
    
     % If parameters.data has only one entry (no cells/not a cell array), or if user said to
     % concatenated across (instead of within) cells. 
-    if ~iscell(parameters.data) || (isfield(parameters, 'concatenate_across_cells') && parameters.concatenate_across_cells)
+    if ~iscell(parameters.data)
         % Make an empty variable for celli to determine display
         % message (just puts an empty place in the message)
         celli = []; 
@@ -60,9 +60,33 @@ function [parameters] = ConcatenateData(parameters)
             [parameters.concatenated_data, parameters.concatenated_origin] = SubConcatenateData(parameters.concatenated_data, parameters.data, parameters.concatDim, celli, parameters.concatenated_origin, origin); 
         end
 
-    % If parameters.data has more than one entry, in cell form 
-    else 
-       
+    % If parameters.data has more than one entry, in cell form....
+  
+    % ... and you want to concatenate across cells
+    elseif (isfield(parameters, 'concatenate_across_cells') && parameters.concatenate_across_cells)
+        
+        % If concatenated_data doesn't exist yet, create it as empty
+        if ~isfield(parameters, 'concatenated_data')
+            parameters.concatenated_data = [];
+        end
+
+        % If a cell array with info about the origin of the entries doesn't
+        % exist yet, create it as empty cell array.
+        if ~isfield(parameters, 'concatenated_origin')
+            parameters.concatenated_origin = {};
+        end
+
+        % Could do cellfun, but I want to disp where the errors occur.
+        for celli = 1:numel(parameters.data)
+            if ~isempty(parameters.data{celli})
+
+                [parameters.concatenated_data, parameters.concatenated_origin] = SubConcatenateData(parameters.concatenated_data, parameters.data{celli}, parameters.concatDim, celli, parameters.concatenated_origin, origin); 
+
+            end
+        end
+
+    % ... and you want to concatenate within cells across other levels 
+    else    
         % If concatenated_data doesn't exist yet, create it as empty
         % cell array with same size as number of cells in data.
         if ~isfield(parameters, 'concatenated_data')
