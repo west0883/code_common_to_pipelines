@@ -272,7 +272,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
             if isempty(last_value) || any(isnan(last_value))
                 % Put in padding.S
                 looping_output_list_2 = [looping_output_list_2; higher_values,{NaN}, {NaN}];
-                
+                maxIterations_out = [maxIterations_out; NaN(1 , size(higher_max_iterations, 2) + 1)];
                 continue
             end 
         end 
@@ -347,7 +347,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
                 
                 continue
             end
-
+            
             % If the very first iteration level, don't need to include any higher
             % level values.
             if i == 1 && higheri ==1
