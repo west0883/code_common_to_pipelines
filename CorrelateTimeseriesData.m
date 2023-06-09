@@ -5,6 +5,7 @@
 % A function that correlates timeseries data.
 % Is general, so you can use with all kinds of timeseries data.
 
+% need inputs: parameters.sourceDim, parameters.timeDim
 
 function [parameters] = CorrelateTimeseriesData(parameters)
    
