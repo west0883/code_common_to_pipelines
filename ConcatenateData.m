@@ -76,15 +76,8 @@ function [parameters] = ConcatenateData(parameters)
             parameters.concatenated_origin = {};
         end
 
-        % Could do cellfun, but I want to disp where the errors occur.
-        for celli = 1:numel(parameters.data)
-            if ~isempty(parameters.data{celli})
-
-                [parameters.concatenated_data, parameters.concatenated_origin] = SubConcatenateData(parameters.concatenated_data, parameters.data{celli}, parameters.concatDim, celli, parameters.concatenated_origin, origin); 
-
-            end
-        end
-
+        [parameters.concatenated_data, parameters.concatenated_origin] = SubConcatenateData(parameters.concatenated_data, parameters.data, parameters.concatDim, [], parameters.concatenated_origin, origin); 
+  
     % ... and you want to concatenate within cells across other levels 
     else    
         % If concatenated_data doesn't exist yet, create it as empty
