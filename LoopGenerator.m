@@ -266,6 +266,12 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
         % Get out all previous iterating values
         higher_values = looping_output_list(higheri, 1:2*(i-1));
         
+        if ~isempty(maxIterations_in)
+            higher_max_iterations = maxIterations_in(higheri, :); 
+        else 
+            higher_max_iterations = [];
+        end
+
         % If previous value entry is empty
         if i > 1
             last_value = higher_values{end-1};
@@ -276,11 +282,7 @@ function [looping_output_list_2, maxIterations_out] = LoopSubGenerator(i,looping
                 continue
             end 
         end 
-        if ~isempty(maxIterations_in)
-            higher_max_iterations = maxIterations_in(higheri, :); 
-        else 
-            higher_max_iterations = [];
-        end
+      
 
         % Get the current values based on higher_values and where current
         % value is stored. Make a list of keys-values for creating the
