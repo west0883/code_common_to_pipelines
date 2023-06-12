@@ -30,8 +30,22 @@ function [parameters] = ConcatenateData(parameters)
 
         % If the current iterator is 1, that means you're starting a new
         % concatenation, clear any previously concatenated data.
-        if current_iterator == 1 && isfield(parameters, 'concatenated_data')
-            parameters = rmfield(parameters, 'concatenated_data'); 
+        if current_iterator == 1
+
+            % If there are iterators below this iterator 
+            if size(parameters.loop_list.iterators, 1) > iterator_level
+    
+                all_lowest_iterators = [parameters.values{numel(parameters.values)/2 + iterator_level : numel(parameters.values)}];
+                new_concatenation_flag = all(all_lowest_iterators == 1);
+
+            else 
+                new_concatenation_flag = true; 
+            end
+    
+            % Clear any previously concatenated data
+            if new_concatenation_flag && isfield(parameters, 'concatenated_data')
+                parameters = rmfield(parameters, 'concatenated_data'); 
+            end 
         end 
     end 
    
