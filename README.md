@@ -7,4 +7,4 @@ This code calls on code created by other programmers. Credit belongs to the orig
 This respository is a work in progress. For questions, problems, or concerns, please email Sarah West at [west0883@umn.edu](west0883@umn.edu).
 
 Please cite the primary repository used if this code is used in any papers or publications. Or, please cite as: <br>
-West, SL. (2021). MATLAB helper function code. Accessed [date accessed]. https://github.com/west0883/code_common_to_pipelines
+West, SL. (2023). MATLAB helper function code. Accessed [date accessed]. https://github.com/west0883/code_common_to_pipelines
